@@ -96,5 +96,5 @@ theme: landscape
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: 'git'
-  repo: https://github.com/mequanwei/wuee.github.io.git
+  repo: https://github.com/mequanwei/mequanwei.github.io.git
   brach: master
