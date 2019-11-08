@@ -12,20 +12,19 @@
 {%- endif %}
 {%- if page.comments %}
 <script>
+  function disqus_config() {
+    this.page.url = {{ page.permalink | json }};
+    this.page.identifier = {{ page.path | json }};
+    this.page.title = '{{ page.title | addslashes }}';
+    {%- if __('disqus') !== 'disqus' %}
+      this.language = '{{ __('disqus') }}';
+    {%- endif %}
+  }
   function loadComments() {
     if (window.DISQUS) {
       DISQUS.reset({
         reload: true,
-        config: {
-          {%- if __('disqus') !== 'disqus' -%}
-            language: '{{ __('disqus') }}',
-          {% endif -%}
-          page: {
-            url: {{ page.permalink | json }},
-            identifier: {{ page.path | json }},
-            title: {{ page.title | json }}
-          }
-        }
+        config: disqus_config
       });
     } else {
       var d = document, s = d.createElement('script');

@@ -42,7 +42,11 @@ gulp.task('validate:languages', cb => {
     }
   });
 
-  return errors.length === 0 ? cb() : cb(errors);
+  if (errors.length === 0) {
+    return cb();
+  } else {
+    return cb(errors);
+  }
 });
 
 gulp.task('default', gulp.series('lint', 'validate:config', 'validate:languages'));

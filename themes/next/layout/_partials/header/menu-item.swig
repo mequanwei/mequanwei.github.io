@@ -1,14 +1,14 @@
-{% macro render(name, itemName, value) %}
+{% macro render(name, value) %}
 
   {%- set itemURL = value.split('||')[0] | trim %}
   {%- if itemURL.indexOf('http') != 0 %}
-    {%- set itemURL = itemURL | replace('//', '/') %}
+    {%- set itemURL = itemURL | replace('//', '/', 'g') %}
   {%- endif %}
-  <li class="menu-item menu-item-{{ itemName | replace(' ', '-') }}">
+  <li class="menu-item menu-item-{{ itemName | replace(' ', '-', 'g') }}">
 
     {%- set menuText = __('menu.' + name) | replace('menu.', '') %}
     {%- if theme.menu_settings.icons %}
-      {%- set menuIcon = '<i class="fa fa-fw fa-' + value.split('||')[1] | trim + '"></i>' %}
+      {%- set menuIcon = '<i class="fa fa-fw fa-' + value.split('||')[1] | trim | default('question-circle') + '"></i>' %}
     {%- endif %}
 
     {%- set menuBadge = '' %}

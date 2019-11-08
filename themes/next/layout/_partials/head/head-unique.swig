@@ -1,6 +1,10 @@
 {{ open_graph() }}
 
-{{ canonical() }}
+{%- if theme.canonical %}
+  {%- set without_index = url | replace('index.html', '') %}
+  {%- set without_html = without_index | replace('.html', '') %}
+  <link rel="canonical" href="{{ without_html }}">
+{%- endif %}
 
 {# Exports some front-matter variables to Front-End #}
 <script id="page-configurations">
