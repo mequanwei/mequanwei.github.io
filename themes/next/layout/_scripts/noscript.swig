@@ -10,6 +10,7 @@
   .use-motion .post-body,
   .use-motion .collection-header { opacity: initial; }
 
+  .use-motion .logo,
   .use-motion .site-title,
   .use-motion .site-subtitle {
     opacity: initial;

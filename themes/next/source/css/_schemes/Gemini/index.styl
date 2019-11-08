@@ -1,5 +1,5 @@
 @import '../Pisces/_layout';
-@import '../Pisces/_header';
+@import '../Pisces/_brand';
 @import '../Pisces/_menu';
 @import '../Pisces/_sub-menu';
 @import '../Pisces/_sidebar';
@@ -42,11 +42,13 @@ $use-seo = hexo-config('seo');
 }
 
 // When blocks are siblings (homepage).
-.post-block + .post-block {
-  border-radius: $border-radius;
-  // Rewrite shadows & borders because all blocks have offsets.
-  box-shadow: $box-shadow;
-  margin-top: $sidebar-offset;
+#posts > article + article {
+  .post-block {
+    border-radius: $border-radius;
+    // Rewrite shadows & borders because all blocks have offsets.
+    box-shadow: $box-shadow;
+    margin-top: $sidebar-offset;
+  }
 }
 
 // Comments blocks.
@@ -112,7 +114,7 @@ $use-seo = hexo-config('seo');
   box-shadow: $box-shadow-inner;
 
   // Adapt submenu(s) with post-blocks.
-  + .content {
+  + #content > #posts {
     .post-block {
       box-shadow: $box-shadow;
       margin-top: $sidebar-offset;
@@ -178,8 +180,10 @@ $use-seo = hexo-config('seo');
   }
 
   // Only if blocks are siblings need bottom margin (homepage).
-  .post-block + .post-block {
-    margin-top: $content-tablet-padding;
+  #posts > article + article {
+    .post-block {
+      margin-top: $content-tablet-padding;
+    }
   }
 
   .comments {
@@ -222,8 +226,10 @@ $use-seo = hexo-config('seo');
   }
 
   // Only if blocks are siblings need bottom margin (homepage).
-  .post-block + .post-block {
-    margin-top: $content-mobile-padding;
+  #posts > article + article {
+    .post-block {
+      margin-top: $content-mobile-padding;
+    }
   }
 
   .comments {

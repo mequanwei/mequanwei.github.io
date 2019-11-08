@@ -13,15 +13,13 @@ NexT.utils.getScript('{{ valine_uri }}', () => {
     notify: {{ theme.valine.notify }},
     appId: '{{ theme.valine.appid }}',
     appKey: '{{ theme.valine.appkey }}',
-    placeholder: {{ theme.valine.placeholder | json }},
+    placeholder: '{{ theme.valine.placeholder }}',
     avatar: '{{ theme.valine.avatar }}',
     meta: guest,
     pageSize: '{{ theme.valine.pageSize }}' || 10,
     visitor: {{ theme.valine.visitor }},
     lang: '{{ theme.valine.language }}' || 'zh-cn',
-    path: location.pathname,
-    recordIP: {{ theme.valine.recordIP }},
-    serverURLs: '{{ theme.valine.serverURLs }}'
+    path: location.pathname
   });
 }, window.Valine);
 </script>

@@ -9,10 +9,11 @@
 }
 
 .site-state-item {
+  border-left: 1px solid $site-state-item-border-color;
   padding: 0 15px;
 
-  &:not(:first-child) {
-    border-left: 1px solid $site-state-item-border-color;
+  &:first-child {
+    border-left: none;
   }
 
   a {

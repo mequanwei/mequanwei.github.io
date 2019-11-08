@@ -6,12 +6,12 @@
 
   to {
     opacity: 0;
-    transform: scale(.8);
+    transform: scale(0.8);
   }
 }
 
-.event-list {
-  padding: 0;
+#event-list {
+  padding: 0px;
 
   hr {
     background: $black-deep;
@@ -28,20 +28,18 @@
     }
   }
 
-  .event {
-    background: $black-deep;
+  li.event {
+    background: #f9f9f9;
     margin: 20px 0;
     min-height: 40px;
-    padding: 15px 0 15px 10px;
+    padding-left: 10px;
 
-    .event-summary {
-      color: white;
+    h2.event-summary {
       margin: 0;
       padding-bottom: 3px;
 
       &::before {
-        animation: dot-flash 1s alternate infinite ease-in-out;
-        color: white;
+        color: $grey;
         content: '\f111';
         display: inline-block;
         font-family: $font-family-icons;
@@ -51,7 +49,7 @@
       }
     }
 
-    .event-relative-time {
+    span.event-relative-time {
       color: $grey;
       display: inline-block;
       font-size: 12px;
@@ -59,8 +57,8 @@
       padding-left: 12px;
     }
 
-    .event-details {
-      color: white;
+    span.event-details {
+      color: $grey;
       display: block;
       line-height: 18px;
       margin-left: 56px;
@@ -69,9 +67,9 @@
       text-indent: -24px;
 
       &::before {
-        color: white;
+        color: $grey;
         display: inline-block;
-        font-family: $font-family-icons;
+        font-family: FontAwesome;
         margin-right: 9px;
         text-align: center;
         text-indent: 0;
@@ -88,17 +86,54 @@
     }
   }
 
-  .event-past {
-    background: $whitesmoke;
+  li.event-past {
+    background: #fcfcfc;
+    padding: 15px 0 15px 10px;
 
-    .event-summary, .event-details {
-      color: $grey;
+    > * {
       opacity: .9;
+    }
+
+    h2.event-summary {
+      color: $grey;
 
       &::before {
-        animation: none;
-        color: $grey;
+        color: #dfdfdf;
       }
+    }
+  }
+
+  li.event-now {
+    background: $black-deep;
+    color: white;
+    padding: 15px 0 15px 10px;
+
+    h2.event-summary {
+      &::before {
+        animation: dot-flash 1s alternate infinite ease-in-out;
+        color: white;
+      }
+    }
+
+    * {
+      color: white !important;
+    }
+  }
+
+  li.event-future {
+    background: $black-deep;
+    color: white;
+    padding: 15px 0 15px 10px;
+
+    h2.event-summary {
+      &::before {
+        animation: dot-flash 1s alternate infinite ease-in-out;
+        color: white;
+      }
+    }
+
+    * {
+      color: white !important;
     }
   }
 }

@@ -12,7 +12,7 @@
   }
 
   // Read config form theme config file
-  Object.assign(calendar, {{ theme.calendar | json }});
+  Object.assign(calendar, {{ theme.calendar | json_encode }});
 
   var now = new Date();
   var timeMax = new Date();
@@ -46,7 +46,7 @@
   var queryLoop = setInterval(fetchData, 60000);
 
   function fetchData() {
-    var eventList = document.querySelector('.event-list');
+    var eventList = document.getElementById('event-list');
     if (!eventList) return;
 
     fetch(request_url).then(response => {
@@ -89,19 +89,19 @@
     elapsed = Math.abs(elapsed);
 
     if      ( elapsed < msPerHour  ) {
-      return Math.round(elapsed / msPerMinute) + ' minutes ' + tense;
+      return Math.round(elapsed/msPerMinute) + ' minutes ' + tense;
     }
     else if ( elapsed < msPerDay   ) {
-      return Math.round(elapsed / msPerHour) + ' hours ' + tense;
+      return Math.round(elapsed/msPerHour) + ' hours ' + tense;
     }
     else if ( elapsed < msPerMonth ) {
-      return 'about ' + Math.round(elapsed / msPerDay) + ' days ' + tense;
+      return 'about ' + Math.round(elapsed/msPerDay) + ' days ' + tense;
     }
     else if ( elapsed < msPerYear  ) {
-      return 'about ' + Math.round(elapsed / msPerMonth) + ' months ' + tense;
+      return 'about ' + Math.round(elapsed/msPerMonth) + ' months ' + tense;
     }
     else {
-      return 'about' + Math.round(elapsed / msPerYear) + ' years' + tense;
+      return 'about' + Math.round(elapsed/msPerYear) + ' years' + tense;
     }
   }
 
@@ -128,27 +128,36 @@
       default:
         throw 'Time data error';
     }
-    var durationFormat = {
+    durationFormat = {
       weekday: 'short',
       hour   : '2-digit',
       minute : '2-digit'
     };
-    var relativeTimeStr = (tense == 0) ? 'NOW' : getRelativeTime(now, start);
-    var durationStr = start.toLocaleTimeString([], durationFormat) + ' - ' + end.toLocaleTimeString([], durationFormat);
+    relativeTimeStr = (tense == 0) ? 'NOW' : getRelativeTime(now, start);
+    durationStr = start.toLocaleTimeString([], durationFormat) + ' - ' +
+                  end.toLocaleTimeString([], durationFormat);
 
-    var locationDOM = '';
+    liOpen  = '<li class="event ' + tenseClass + '">';
+    liClose = '</li>';
+    h2Open  = '<h2 class="event-summary">';
+    h2Close = '</h2>';
+
+    locationDOM     = '';
     if (calendar.showLocation && event.location) {
-      locationDOM = '<span class="event-location event-details">' + event.location + '</span>';
+      locationDOM   = '<span class="event-location event-details">' + event.location + '</span>';
     }
+    relativeTimeDOM = '<span class="event-relative-time">' + relativeTimeStr + '</span>';
+    durationDOM     = '<span class="event-duration event-details">' + durationStr + '</span>';
 
-    var eventContent = `<div class="event ${tenseClass}">
-        <h2 class="event-summary">
-          ${event.summary}
-          <span class="event-relative-time">${relativeTimeStr}</span>
-        </h2>
-        ${locationDOM}
-        <span class="event-duration event-details">${durationStr}</span>
-      </div>`;
+    eventContent =
+      liOpen +
+        h2Open +
+          event.summary +
+          relativeTimeDOM+
+        h2Close +
+        locationDOM +
+        durationDOM +
+      liClose;
     return eventContent;
   }
 })();

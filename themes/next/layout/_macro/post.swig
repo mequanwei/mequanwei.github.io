@@ -1,7 +1,8 @@
+  <article itemscope itemtype="http://schema.org/Article">
   {##################}
   {### POST BLOCK ###}
   {##################}
-  <article itemscope itemtype="http://schema.org/Article" class="post-block {% if is_index %}home{% endif %}" lang="{{ post.lang or post.language or config.language }}">
+  <div class="post-block {% if is_index %}home{% else %}post{% endif %}">
     <link itemprop="mainEntityOfPage" href="{{ config.url }}{{ url_for(post.path) }}">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -16,9 +17,9 @@
 
     {%- if post.header !== false %}
       <header class="post-header">
-        <{%- if theme.seo %}h2{% else %}h1{%- endif %} class="post-title{%- if post.direction and post.direction.toLowerCase() === 'rtl' %} rtl{%- endif %}" itemprop="name headline">
-          {# Link posts #}
-          {%- if post.link %}
+        <{%- if theme.seo %}h2{% else %}h1{%- endif %} class="post-title{%- if post.direction and post.direction.toLowerCase() === 'rtl' %} rtl{%- endif %}" itemprop="name headline">{#
+        #}{# Link posts #}{#
+        #}{%- if post.link %}
             {%- if post.sticky > 0 %}
               <span class="post-sticky-flag" title="{{ __('post.sticky') }}">
                 <i class="fa fa-thumb-tack"></i>
@@ -26,16 +27,16 @@
             {%- endif %}
             {%- set postTitleIcon = '<i class="fa fa-external-link"></i>' %}
             {%- set postText = post.title or post.link %}
-            {{ next_url(post.link, postText + postTitleIcon, {class: 'post-title-link post-title-link-external', itemprop: 'url'}) }}
+            {{ next_url(post.link, postText + postTitleIcon, {class: 'post-title-link post-title-link-external', itemprop: 'url' }) }}
           {% elif is_index %}
             {%- if post.sticky > 0 %}
               <span class="post-sticky-flag" title="{{ __('post.sticky') }}">
                 <i class="fa fa-thumb-tack"></i>
               </span>
             {%- endif %}
-            {{ next_url(post.path, post.title | default(__('post.untitled')), {class: 'post-title-link', itemprop: 'url'}) }}
-          {%- else %}
-            {{- post.title }}
+            {{ next_url(post.path, post.title | default(__('post.untitled')), {class: 'post-title-link', itemprop: 'url' }) }}
+          {% else -%}
+            {{- post.title -}}
             {% include '../_partials/post-edit.swig' %}
           {%- endif %}
         </{%- if theme.seo %}h2{% else %}h1{%- endif %}>
@@ -59,7 +60,9 @@
                 {%- set create_title = __('post.created') + __('symbol.colon') + full_date(post.date) %}
               {%- endif %}
 
-              <time title="{{ create_title }}" itemprop="dateCreated datePublished" datetime="{{ moment(post.date).format() }}">{{ date(post.date) }}</time>
+              <time title="{{ create_title }}" itemprop="dateCreated datePublished" datetime="{{ moment(post.date).format() }}">{#
+              #}{{ date(post.date) -}}
+              </time>
             </span>
           {%- endif %}
 
@@ -72,7 +75,9 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">{{ __('post.edited') }}</span>
-                <time title="{{ __('post.modified') + __('symbol.colon') + full_date(post.updated) }}" itemprop="dateModified" datetime="{{ moment(post.updated).format() }}">{{ date(post.updated) }}</time>
+                <time title="{{ __('post.modified') + __('symbol.colon') + full_date(post.updated) }}" itemprop="dateModified" datetime="{{ moment(post.updated).format() }}">{#
+                #}{{ date(post.updated) -}}
+                </time>
               </span>
             {%- endif %}
           {%- endif %}
@@ -84,11 +89,11 @@
               </span>
               <span class="post-meta-item-text">{{ __('post.in') }}</span>
               {%- for cat in post.categories %}
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="{{ url_for(cat.path) }}" itemprop="url" rel="index">
-                    <span itemprop="name">{{ cat.name }}</span>
-                  </a>
-                </span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">{#
+                #}<a href="{{ url_for(cat.path) }}" itemprop="url" rel="index">{#
+                  #}<span itemprop="name">{{ cat.name }}</span>{#
+                #}</a>{#
+              #}</span>
 
                 {%- set cat_length = post.categories.length %}
                 {%- if cat_length > 1 and loop.index !== cat_length %}
@@ -157,7 +162,9 @@
           {%- endif %}
 
           {%- if post.description and (not theme.excerpt_description or not is_index) %}
-            <div class="post-description">{{ post.description }}</div>
+            <div class="post-description">{#
+              #}{{ post.description }}{#
+            #}</div>
           {%- endif %}
 
         </div>
@@ -283,10 +290,14 @@
       </footer>
     {% else %}
       <footer class="post-footer">
-        <div class="post-eof"></div>
+        {%- set isLast = loop.index % post.per_page === 0 %}
+        {%- if not isLast %}
+          <div class="post-eof"></div>
+        {%- endif %}
       </footer>
     {%- endif %}
-  </article>
+  </div>
   {######################}
   {### END POST BLOCK ###}
   {######################}
+  </article>
