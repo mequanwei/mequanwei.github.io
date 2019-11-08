@@ -1,8 +1,8 @@
 ---
-name: Feature Request
-about: Suggest an idea for this project
+name: Other
+about: Not a question, feature request or bug report
 title: ''
-labels: Feature Request
+labels: ''
 assignees: ''
 
 ---
@@ -18,18 +18,3 @@ Please check if your Issue fulfills the following requirements. If you refuse to
 - [ ] I have already viewed the latest Roadmap on GitHub and searched for current [issues](https://github.com/theme-next/hexo-theme-next/issues?utf8=%E2%9C%93&q=is%3Aissue), which does not help me.
 
 ***
-
-## Expected behavior <!-- 预期行为 -->
-
-
-## Actual behavior <!-- 实际行为 -->
-<!-- Please provide at least one of the following information (请至少提供以下的一项信息) -->
-
-- Links to demo site with this feature: N/A
-- Links to repository or source code of the blog: N/A
-
-
-## Steps to reproduce the behavior <!-- 重现步骤 -->
-1. N/A
-2. N/A
-3. N/A
