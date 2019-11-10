@@ -3,19 +3,23 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: Wuee's Blog
 subtitle: ''
-description: ''
-keywords:
-author: John Doe
-language: zh-cn
+description: '记录，分享，提高'
+keywords: 博客
+author: Quanwei
+language: en
 timezone: ''
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: https://mequanwei.github.com
 root: /
-permalink: :year/:month/:day/:title/
+# permalink: :year/:month/:day/:title/
+permalink: p/:abbrlink.html
+abbrlink:
+   alg: crc32  #support crc16(default) and crc32
+   rep: dec    #support dec(default) and hex
 permalink_defaults:
 pretty_urls:
   trailing_index: true # Set to false to remove trailing index.html from permalinks
@@ -98,3 +102,4 @@ deploy:
    type: 'git'
    repo: https://github.com/mequanwei/mequanwei.github.io.git
    branch: master
+
