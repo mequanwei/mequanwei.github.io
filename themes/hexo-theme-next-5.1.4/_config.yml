@@ -160,7 +160,7 @@ links_layout: block
 # in theme directory(source/images): /images/avatar.gif
 # in site  directory(source/uploads): /uploads/avatar.gif
 avatar: 
-  url: https://avatars2.githubusercontent.com/u/3038790
+  url: /images/github_avatar.png
   rounded: true
   rotated: false
 
