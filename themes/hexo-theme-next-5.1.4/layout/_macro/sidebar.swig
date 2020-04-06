@@ -31,7 +31,9 @@
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             {% if theme.avatar %}
               <img class="site-author-image" itemprop="image"
-                src="{{ url_for( theme.avatar | default(theme.images + '/avatar.gif') ) }}"
+                {#这里手动修改avatar路径}
+                {#src="{{ url_for( theme.avatar | default(theme.images + '/avatar.gif') ) }}"#}
+                src = "/images/github_avatar.png" border-radius="50%"
                 alt="{{ theme.author }}" />
             {% endif %}
               <p class="site-author-name" itemprop="name">{{ theme.author }}</p>
