@@ -93,8 +93,8 @@ int main(int argc, char **argv) {
 使用 main 函数作为入口，可以在初始化之前自定义一些测试类，做自定义初始化，使用 TEST_F 等行为。但是， google 的工程师们认为，如果你不需要用这么多复杂的功能，重写 main 函数太麻烦，于是 gtest 有了第二种方法。只需要在链接是链接 `gtest_main` 库，程序会链接至 gtest 自带的 main 函数，用户只需要写测试例即可。
 
 ### 编译链接
-
 编译时，链接 pthread库和 gtest 库，gtest_main 库
+
 
 ### 更多
 这里只简单的介绍了 gtest 的使用。 gtest 还有更多的扩展功能。参考 github 上官方文档[Googletest Primer](https://github.com/google/googletest/blob/master/googletest/docs/primer.md).
