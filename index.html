@@ -1,78 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="en">
 <head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.0.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
-<script id="hexo-configurations">
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="记录，分享，提高">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Wuee&#39;s Blog">
+<meta property="og:url" content="https://mequanwei.github.com/index.html">
+<meta property="og:site_name" content="Wuee&#39;s Blog">
+<meta property="og:description" content="记录，分享，提高">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="Quanwei">
+<meta property="article:tag" content="博客">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
     scheme: 'Gemini',
-    version: '7.5.0',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":null},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: false,
-    pangu: false,
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
     algolia: {
-      appID: '',
+      applicationID: '',
       apiKey: '',
       indexName: '',
       hits: {"per_page":10},
       labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: '',
-    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    translation: {
-      copy_button: 'Copy',
-      copy_success: 'Copied',
-      copy_failure: 'Copy failed'
-    },
-    sidebarPadding: 40
+    }
   };
 </script>
 
-  <meta name="description" content="记录，分享，提高">
-<meta name="keywords" content="博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Wuee&#39;s Blog">
-<meta property="og:url" content="https:&#x2F;&#x2F;mequanwei.github.com&#x2F;index.html">
-<meta property="og:site_name" content="Wuee&#39;s Blog">
-<meta property="og:description" content="记录，分享，提高">
-<meta property="og:locale" content="en">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="https://mequanwei.github.com/">
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome: true,
-    isPost: false,
-    isPage: false,
-    isArchive: false
-  };
-</script>
+  <link rel="canonical" href="https://mequanwei.github.com/"/>
+
+
+
+
 
   <title>Wuee's Blog</title>
   
@@ -82,129 +132,165 @@
 
 
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
 
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
+<meta name="generator" content="Hexo 4.2.0"></head>
 
-</head>
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container">
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left 
+  page-home">
     <div class="headband"></div>
 
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-meta">
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
 
-    <div>
-      <a href="/" class="brand" rel="start">
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
         <span class="site-title">Wuee's Blog</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
+      
+        <p class="site-subtitle"></p>
+      
   </div>
 
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
   </div>
 </div>
-
 
 <nav class="site-nav">
   
-  <ul id="menu" class="menu">
+
+  
+    <ul id="menu" class="menu">
+      
+        
         <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
-
-  </li>
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+      
+    </ul>
+  
 
-  </li>
-  </ul>
-
+  
 </nav>
-</div>
+
+
+
+ </div>
     </header>
 
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
+    <main id="main" class="main">
       <div class="main-inner">
         <div class="content-wrap">
-          
-
-          <div class="content">
+          <div id="content" class="content">
             
+  <section id="posts" class="posts-expand">
+    
+      
 
-  <div class="posts-expand">
-        
+  
+
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://mequanwei.github.com/p/2473078899.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars2.githubusercontent.com/u/3038790">
       <meta itemprop="name" content="Quanwei">
-      <meta itemprop="description" content="记录，分享，提高">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/%5Bobject%20Object%5D">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Wuee's Blog">
     </span>
+
+    
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/p/2473078899.html" class="post-title-link" itemprop="url">C++单元测试框架——gtest</a>
-        </h1>
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/p/2473078899.html" itemprop="url">C++单元测试框架——gtest</a></h1>
+        
 
         <div class="post-meta">
-            <span class="post-meta-item">
+          <span class="post-time">
+            
               <span class="post-meta-item-icon">
                 <i class="fa fa-calendar-o"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
               
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-06T13:51:27+08:00">
+                2020-04-06
+              </time>
+            
 
-              <time title="Created: 2020-04-06 13:51:27 / Modified: 16:15:09" itemprop="dateCreated datePublished" datetime="2020-04-06T13:51:27+08:00">2020-04-06</time>
-            </span>
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
 
           
 
         </div>
       </header>
+    
 
     
     
@@ -212,159 +298,123 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>最近写C++代码，有时需要测试一两个小函数的功能，需要一个单元测试框架。搜索之后找到 goolge 维护的一个 c++ 单元测试框架——gtest. </p>
-<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><p>在 github <a href="https://github.com/google/googletest" target="_blank" rel="noopener">链接</a>下载代码后，编译即可</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:google/googletest.git</span><br><span class="line">tar zxvf googletest.tar.gz </span><br><span class="line"><span class="built_in">cd</span> googletest</span><br><span class="line">mkdir build     </span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">cmake ../</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
-<p>编译完成后，生成如下文件。将其拷贝至自定义位置或者使用 make install 安装至 /usr/local/</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── include</span><br><span class="line">│   ├── gmock</span><br><span class="line">│   └── gtest</span><br><span class="line">└── lib</span><br><span class="line">    ├── libgmock.a</span><br><span class="line">    ├── libgmock_main.a</span><br><span class="line">    ├── libgtest.a</span><br><span class="line">    |__ libgtest_main.a</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>gtest 中定义了很多宏来判断单元测试是否通过。Fatal assertion 和 Nonfatal assertion 的区别在于：Fatal assertion 不通过不会继续执行。Nonfatal assertion 不通过会继续执行后面的测试例。</p>
-<h5 id="基础断言"><a href="#基础断言" class="headerlink" title="基础断言"></a>基础断言</h5><table>
-<thead>
-<tr>
-<th>Fatal assertion</th>
-<th>Nonfatal assertion</th>
-<th>Verifies</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>ASSERT_TRUE(condition)</td>
-<td>EXPECT_TRUE(condition)</td>
-<td>condition is true</td>
-</tr>
-<tr>
-<td>ASSERT_TRUE(condition)</td>
-<td>EXPECT_TRUE(condition)</td>
-<td>condition is false</td>
-</tr>
-</tbody></table>
-<h5 id="二值比较"><a href="#二值比较" class="headerlink" title="二值比较"></a>二值比较</h5><table>
-<thead>
-<tr>
-<th>Fatal assertion</th>
-<th>Nonfatal assertion</th>
-<th>Verifies</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>ASSERT_EQ(val1, val2)</td>
-<td>EXPECT_EQ(val1, val2)</td>
-<td>val1 == val2</td>
-</tr>
-<tr>
-<td>ASSERT_NE(val1, val2)</td>
-<td>EXPECT_NE(val1, val2)</td>
-<td>val1 != val2</td>
-</tr>
-<tr>
-<td>ASSERT_LT(val1, val2)</td>
-<td>EXPECT_LT(val1, val2)</td>
-<td>val1 &lt; val2</td>
-</tr>
-<tr>
-<td>ASSERT_LE(val1, val2)</td>
-<td>EXPECT_LE(val1, val2)</td>
-<td>val1 &lt;= val2</td>
-</tr>
-<tr>
-<td>ASSERT_GT(val1, val2)</td>
-<td>EXPECT_GT(val1, val2)</td>
-<td>val1 &gt; val2</td>
-</tr>
-<tr>
-<td>ASSERT_GE(val1, val2)</td>
-<td>EXPECT_GE(val1, val2)</td>
-<td>val1 &gt;= val2</td>
-</tr>
-</tbody></table>
-<h6 id="字符串比较"><a href="#字符串比较" class="headerlink" title="字符串比较"></a>字符串比较</h6><table>
-<thead>
-<tr>
-<th>Fatal assertion</th>
-<th>Nonfatal assertion</th>
-<th>Verifies</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>ASSERT_STREQ(str1,str2)</td>
-<td>EXPECT_STREQ(str1,str2)</td>
-<td>the two C strings have the same content</td>
-</tr>
-<tr>
-<td>ASSERT_STRNE(str1,str2)</td>
-<td>EXPECT_STRNE(str1,str2)</td>
-<td>the two C strings have different contents</td>
-</tr>
-<tr>
-<td>ASSERT_STRCASEEQ(str1,str2)</td>
-<td>EXPECT_STRCASEEQ(str1,str2)</td>
-<td>the two C strings have the same content, ignoring case</td>
-</tr>
-<tr>
-<td>ASSERT_STRCASENE(str1,str2)</td>
-<td>EXPECT_STRCASENE(str1,str2)</td>
-<td>the two C strings have different contents, ignoring case</td>
-</tr>
-</tbody></table>
-<h4 id="创建测试"><a href="#创建测试" class="headerlink" title="创建测试"></a>创建测试</h4><p>使用 gtest 创建测试例很简单，使用宏定义格式是：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">TEST(TestSuiteName, TestName) &#123;</span><br><span class="line">  ... test body ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>TEST 的第一个参数是 TestSuiteName，第二个参数是 TestName。<br>官方例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Tests factorial of 0.</span></span><br><span class="line">TEST(FactorialTest, HandlesZeroInput) &#123;</span><br><span class="line">  EXPECT_EQ(Factorial(<span class="number">0</span>), <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Tests factorial of positive numbers.</span></span><br><span class="line">TEST(FactorialTest, HandlesPositiveInput) &#123;</span><br><span class="line">  EXPECT_EQ(Factorial(<span class="number">1</span>), <span class="number">1</span>);</span><br><span class="line">  EXPECT_EQ(Factorial(<span class="number">2</span>), <span class="number">2</span>);</span><br><span class="line">  EXPECT_EQ(Factorial(<span class="number">3</span>), <span class="number">6</span>);</span><br><span class="line">  EXPECT_EQ(Factorial(<span class="number">8</span>), <span class="number">40320</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>测试函数需要入口，有两种方式。一是使用传统的 main 函数，二是使用 gtest_main 库。<br>传统 main 函数方式如下，：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span> </span>&#123;</span><br><span class="line">  ::testing::InitGoogleTest(&amp;argc, argv);</span><br><span class="line">  <span class="keyword">return</span> RUN_ALL_TESTS();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用 main 函数作为入口，可以在初始化之前自定义一些测试类，做自定义初始化，使用 TEST_F 等行为。但是 google 的工程师们如果你不需要用这么多复杂的功能，写 main 函数太多余，只需要在链接是链接 <code>gtest_main</code> 库，程序会链接至 gtest 自带的 main 函数，用户只需要写测试例即可。</p>
-<h3 id="更多"><a href="#更多" class="headerlink" title="更多"></a>更多</h3><p>这里只简单的介绍了 gtest 的使用。 gtest 还有更多的扩展功能。参考 github 上官方文档<a href="https://github.com/google/googletest/blob/master/googletest/docs/primer.md" target="_blank" rel="noopener">Googletest Primer</a>.</p>
+      
 
       
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
         
+          <p>最近写C++代码，有时需要测试一两个小函数的功能，需要一个单元测试框架。搜索之后找到 goolge 维护的一个 c++ 单元测试框架——gtest. </p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/p/2473078899.html#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://mequanwei.github.com/p/907060870.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://avatars2.githubusercontent.com/u/3038790">
       <meta itemprop="name" content="Quanwei">
-      <meta itemprop="description" content="记录，分享，提高">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/%5Bobject%20Object%5D">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Wuee's Blog">
     </span>
+
+    
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/p/907060870.html" class="post-title-link" itemprop="url">hello</a>
-        </h1>
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/p/907060870.html" itemprop="url">hello</a></h1>
+        
 
         <div class="post-meta">
-            <span class="post-meta-item">
+          <span class="post-time">
+            
               <span class="post-meta-item-icon">
                 <i class="fa fa-calendar-o"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
               
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-10T16:21:32+08:00">
+                2019-11-10
+              </time>
+            
 
-              <time title="Created: 2019-11-10 16:21:32 / Modified: 16:23:02" itemprop="dateCreated datePublished" datetime="2019-11-10T16:21:32+08:00">2019-11-10</time>
-            </span>
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
 
           
 
         </div>
       </header>
+    
 
     
     
@@ -372,121 +422,178 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>需要有一篇文章，不然会显示错误</p>
+      
+
+      
+        
+          
+            <p>需要有一篇文章，不然会显示错误</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int main()&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
       
     </div>
+    
+    
+    
 
     
+
     
+
     
-      <footer class="post-footer">
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
         <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
+      
+    </footer>
   </div>
+  
+  
+  
+  </article>
+
+
+    
+  </section>
 
   
-
 
 
           </div>
           
 
+
+          
+
         </div>
+        
           
   
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
   </div>
 
-  <aside class="sidebar">
+  <aside id="sidebar" class="sidebar">
+    
     <div class="sidebar-inner">
 
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
+      
 
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-      </div>
-      <!--/noindex-->
+      
 
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <img class="site-author-image" itemprop="image" alt="Quanwei"
-    src="https://avatars2.githubusercontent.com/u/3038790">
-  <p class="site-author-name" itemprop="name">Quanwei</p>
-  <div class="site-description" itemprop="description">记录，分享，提高</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">2</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-  </nav>
-</div>
-  <div class="links-of-author motion-element">
-      <span class="links-of-author-item">
-        <a href="https://github.com/mequanwei" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;mequanwei" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="/mailto:quanwei12@gmail.com" title="E-Mail &amp;rarr; mailto:quanwei12@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
-      </span>
-  </div>
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/%5Bobject%20Object%5D"
+                alt="Quanwei" />
+            
+              <p class="site-author-name" itemprop="name">Quanwei</p>
+              <p class="site-description motion-element" itemprop="description">记录，分享，提高</p>
+          </div>
 
+          <nav class="site-state motion-element">
 
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
 
-      </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/mequanwei" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:quanwei12@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
 
     </div>
   </aside>
-  <div id="sidebar-dimmer"></div>
 
 
+        
       </div>
     </main>
 
-    <footer class="footer">
+    <footer id="footer" class="footer">
       <div class="footer-inner">
-        
-
-<div class="copyright">
-  
-  &copy; 2019 – 
-  <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; 2019 &mdash; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Quanwei</span>
+
+  
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
-  </div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
   <span class="post-meta-divider">|</span>
-  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.5.0
-  </div>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
 
         
-
-
-
-
-
 
 
 
@@ -497,13 +604,31 @@
         
       </div>
     </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
   </div>
 
   
-  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
-<script src="/js/utils.js"></script>
-<script src="/js/schemes/pisces.js"></script>
-<script src="/js/next-boot.js"></script>
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
 
 
 
@@ -520,9 +645,114 @@
 
 
 
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
 
 
 
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
 
   
 
