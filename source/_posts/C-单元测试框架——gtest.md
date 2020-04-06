@@ -51,7 +51,7 @@ ASSERT_LE(val1, val2)	    |EXPECT_LE(val1, val2)	    |val1 <= val2        |
 ASSERT_GT(val1, val2)	    |EXPECT_GT(val1, val2)	    |val1 > val2         |
 ASSERT_GE(val1, val2)	    |EXPECT_GE(val1, val2)	    |val1 >= val2        |
 
-##### 字符串比较
+#### 字符串比较
 Fatal assertion 	        |Nonfatal assertion	        | Verifies
 ----                        |----                       |----                                                       |
 ASSERT_STREQ(str1,str2) 	|EXPECT_STREQ(str1,str2)	|the two C strings have the same content                    |
