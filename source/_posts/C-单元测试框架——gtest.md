@@ -6,7 +6,7 @@ tags:
 ---
 
 最近写C++代码，有时需要测试一两个小函数的功能，需要一个单元测试框架。搜索之后找到 goolge 维护的一个 c++ 单元测试框架——gtest. 
-
+<!--more-->
 ### 编译安装
 在 github [链接](https://github.com/google/googletest)下载代码后，编译即可
 ``` bash
