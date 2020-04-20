@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近接手一个实时操作系统内核，在此聊聊系统中的进程管理，包括调度，通信等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实时操作系统里的任务调度">
+<meta property="og:url" content="https://mequanwei.github.com/p/1245973073.html">
+<meta property="og:site_name" content="Wuee&#39;s Blog">
+<meta property="og:description" content="最近接手一个实时操作系统内核，在此聊聊系统中的进程管理，包括调度，通信等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-04-16T14:54:59.000Z">
+<meta property="article:modified_time" content="2020-04-20T14:25:08.560Z">
+<meta property="article:author" content="Quanwei">
+<meta property="article:tag" content="博客">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mequanwei.github.com/p/1245973073.html"/>
+
+
+
+
+
+  <title>实时操作系统里的任务调度 | Wuee's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Wuee's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://mequanwei.github.com/p/1245973073.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Quanwei">
+      <meta itemprop="description" content="">
+      
+      <meta itemprop="image" content="/images/github_avatar.png"> 
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wuee's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实时操作系统里的任务调度</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-16T22:54:59+08:00">
+                2020-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近接手一个实时操作系统内核，在此聊聊系统中的进程管理，包括调度，通信等。</p>
+<a id="more"></a>
+
+<h3 id="操作系统的使用场景"><a href="#操作系统的使用场景" class="headerlink" title="操作系统的使用场景"></a>操作系统的使用场景</h3><p>该操作系统设计的场景是实时响应外部需求，因为实时性的要求，业务场景中有 36 个物理核心，每个物理核心上运行一个操作系统。业务数据流就像通过流水线一样，依次经过每个核的处理。由于每个核之间需要交互，因此操作系统需要负责进程切换，核间通信。<br>由于每个操作系统上只有少量进程，为了提高任务切换速度，所有的进程资源共享。这种简化版的进程在系统中被称为任务。由于使用场景明确，系统没有提供用户接口，任务创建通过代码实现，示意流程代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Task</span> tcb;</span><br><span class="line">    </span><br><span class="line">    tcb.name = 'Tsk_01';</span><br><span class="line">    tcb.prior = <span class="number">20</span>;</span><br><span class="line">    create_task(&amp;tcb);</span><br><span class="line"></span><br><span class="line">    tcb.name = 'Tsk_02';</span><br><span class="line">    tcb.prior = <span class="number">22</span>;</span><br><span class="line">    create_task(&amp;tcb);</span><br><span class="line"></span><br><span class="line">    OS_Start();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"======error======"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="任务的调度"><a href="#任务的调度" class="headerlink" title="任务的调度"></a>任务的调度</h3><p>任务调度的两个问题是 1. 何时调度，2. 如何调度。</p>
+<h5 id="何时启动调度"><a href="#何时启动调度" class="headerlink" title="何时启动调度"></a>何时启动调度</h5><p>按照设计，系统中每个任务优先级不同，最多支持32个任务。系统采用抢占式优先级任务调度算法。任务从就绪队列中选择优先级最高的任务执行，当出现更高的优先级时，立即切换到高优先级任务。任务的切换有两种方式：</p>
+<ol>
+<li>被动调度。每隔一小段时间，操作系统会进行一次检查，从就绪队列中选区最高优先级的任务，如果该任务的优先级高于当前任务，便进行任务切换。</li>
+<li>高优先级任务主动放弃运行。高优先级任务通过调用 sleep(), pend() 等函数将自身切换到就绪态，然后显式调用调度函数 Sched() 切换到就绪队列中最高优先级的任务。</li>
+</ol>
+<p>这种调度方式优点是简单高效， 但是可能出现优先级翻转的问题。优先级翻转是抢占式调度常见的问题， 考虑如下场景： </p>
+<ul>
+<li>系统上有三个任务A,B,C. 优先级 A &lt; B &lt; C. A, C 需要使用共享资源S. </li>
+<li>在最开始，A 正在运行，使用到了共享资源 S 并对其加锁。</li>
+<li>C 任务被激活，抢占 CPU。尝试使用共享资源 S ,发现被加锁。开始等待并进入到阻塞态。</li>
+<li>B 任务被激活，抢占cpu，过一段时间后主动释放cpu 。</li>
+<li>A 任务恢复，使用完共享资源S，释放cpu。</li>
+<li>C 任务开始执行，使用共享资源 S<br>可以看到，由于低优先级任务 A 占用了共享资源，高优先级任务 C 被迫在任务 B 之后执行。如果 A, C 之间存在多个任务，将导致高优先级任务的响应时间不可控，在实时系统中，这是不被允许的。系统中采取优先级天花板的方法来解决这个问题：</li>
+<li>C 任务申请共享资源 S 时，如果发现共享资源 S 被低优先级任务 A 占用。便将任务 A 提高至最高优先级，然后依次执行 A 任务，C 任务。</li>
+</ul>
+<h5 id="如何切换运行状态"><a href="#如何切换运行状态" class="headerlink" title="如何切换运行状态"></a>如何切换运行状态</h5><p>任务切换涉及到运行状态的保存和恢复。在系统中，需要保存恢复现场有如下几种情况：</p>
+<ol>
+<li>进入中断，退出中断。</li>
+<li>主动放弃任务，切换至低优先级任务。即任务切换中的情况1。</li>
+<li>进入中断，就绪队列出现高优先级任务，切换任务，返回至新任务。即任务切换中的情况2.</li>
+</ol>
+<p>保存现场需要将当时任务运行状态保存至当前任务栈中，接着切换任务，重新设置栈指针，然后从新的任务栈中恢复运行状态。这一部分代码因为涉及到寄存器操作，必然是汇编代码，在 ARMv8 AARCh64 下，核心代码如下：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">//asm <span class="meta">code</span></span><br><span class="line"><span class="symbol">intc_handle</span>:</span><br><span class="line">    save_regs</span><br><span class="line">    IRS here</span><br><span class="line">    <span class="meta">if</span> curRedey &gt; curRuning then</span><br><span class="line">        tsk_switch</span><br><span class="line">    restore_regs</span><br><span class="line">    eret</span><br><span class="line"></span><br><span class="line">// c <span class="meta">code</span> </span><br><span class="line"><span class="symbol">void</span> sched()&#123;</span><br><span class="line">    disable intc</span><br><span class="line">    tsk_switch_ctx</span><br><span class="line">    restore intc</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="symbol">tsk_switch_ctx</span>:</span><br><span class="line">  save_regs</span><br><span class="line"><span class="symbol">tsk_switch</span>:</span><br><span class="line">  <span class="keyword">switch </span>task tcb <span class="keyword">and </span><span class="built_in">sp</span></span><br><span class="line">  restore_regs</span><br><span class="line">  eret</span><br><span class="line"></span><br><span class="line"><span class="symbol">save_regs</span>:</span><br><span class="line">  save X29-X0</span><br><span class="line">  save SPSR, ELR, <span class="built_in">LR</span> </span><br><span class="line"></span><br><span class="line"><span class="symbol">restore_regs</span>:</span><br><span class="line">  restore X29-X0</span><br><span class="line">  resotre SPSR, ELR, <span class="built_in">LR</span></span><br></pre></td></tr></table></figure>
+<p>任务调度两个入口分别是intc_handle 和 sched(). 中断/任务返回时，需要使用 eret 保证切换任务和 PSTATE 的状态同时切换。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/p/2473078899.html" rel="next" title="C++单元测试框架——gtest">
+                <i class="fa fa-chevron-left"></i> C++单元测试框架——gtest
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                
+                src = "/images/github_avatar.png"
+                alt="Quanwei" />
+            
+              <p class="site-author-name" itemprop="name">Quanwei</p>
+              <p class="site-description motion-element" itemprop="description">记录，分享，提高</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/mequanwei" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:quanwei12@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#操作系统的使用场景"><span class="nav-number">1.</span> <span class="nav-text">操作系统的使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务的调度"><span class="nav-number">2.</span> <span class="nav-text">任务的调度</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#何时启动调度"><span class="nav-number">2.0.1.</span> <span class="nav-text">何时启动调度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如何切换运行状态"><span class="nav-number">2.0.2.</span> <span class="nav-text">如何切换运行状态</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2019 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Quanwei</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
