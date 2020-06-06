@@ -79,18 +79,24 @@
 
 
 
-<meta name="description" content="最近接手一个实时操作系统内核，在此聊聊系统中的进程管理，包括调度，通信等。">
+<meta name="description" content="OSI 协议体系众所周知，在计算机网络中，OSI协议体系将网络分为七层。实际应用中，根据关注点的不同，又演变出不同的协议栈体系，不过协议的本质没区别。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="实时操作系统里的任务调度">
-<meta property="og:url" content="https://mequanwei.github.com/p/1245973073.html">
+<meta property="og:title" content="OSI协议体系和5G协议栈的关系">
+<meta property="og:url" content="https://mequanwei.github.com/p/4069360271.html">
 <meta property="og:site_name" content="Wuee&#39;s Blog">
-<meta property="og:description" content="最近接手一个实时操作系统内核，在此聊聊系统中的进程管理，包括调度，通信等。">
+<meta property="og:description" content="OSI 协议体系众所周知，在计算机网络中，OSI协议体系将网络分为七层。实际应用中，根据关注点的不同，又演变出不同的协议栈体系，不过协议的本质没区别。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-04-16T14:54:59.000Z">
-<meta property="article:modified_time" content="2020-04-20T14:25:08.560Z">
+<meta property="og:image" content="https://mequanwei.github.com/img/5G-OSI-01.png">
+<meta property="og:image" content="https://mequanwei.github.com/img/5G-OSI-04.png">
+<meta property="og:image" content="https://mequanwei.github.com/img/5G-OSI-03.png">
+<meta property="og:image" content="https://mequanwei.github.com/img/5G-OSI-02.png">
+<meta property="og:image" content="https://mequanwei.github.com/img/5G-OSI-05.png">
+<meta property="article:published_time" content="2020-06-06T14:47:50.000Z">
+<meta property="article:modified_time" content="2020-06-06T15:48:56.172Z">
 <meta property="article:author" content="Quanwei">
 <meta property="article:tag" content="博客">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mequanwei.github.com/img/5G-OSI-01.png">
 
 
 
@@ -120,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="https://mequanwei.github.com/p/1245973073.html"/>
+  <link rel="canonical" href="https://mequanwei.github.com/p/4069360271.html"/>
 
 
 
 
 
-  <title>实时操作系统里的任务调度 | Wuee's Blog</title>
+  <title>OSI协议体系和5G协议栈的关系 | Wuee's Blog</title>
   
 
 
@@ -233,7 +239,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://mequanwei.github.com/p/1245973073.html">
+    <link itemprop="mainEntityOfPage" href="https://mequanwei.github.com/p/4069360271.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Quanwei">
@@ -251,7 +257,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">实时操作系统里的任务调度</h1>
+          <h1 class="post-title" itemprop="name headline">OSI协议体系和5G协议栈的关系</h1>
         
 
         <div class="post-meta">
@@ -263,8 +269,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-16T10:54:59-04:00">
-                2020-04-16
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-06-06T10:47:50-04:00">
+                2020-06-06
               </time>
             
 
@@ -301,37 +307,134 @@
       
 
       
-        <p>最近接手一个实时操作系统内核，在此聊聊系统中的进程管理，包括调度，通信等。</p>
+        <h2 id="OSI-协议体系"><a href="#OSI-协议体系" class="headerlink" title="OSI 协议体系"></a>OSI 协议体系</h2><p>众所周知，在计算机网络中，OSI协议体系将网络分为七层。实际应用中，根据关注点的不同，又演变出不同的协议栈体系，不过协议的本质没区别。</p>
 <a id="more"></a>
-
-<h3 id="操作系统的使用场景"><a href="#操作系统的使用场景" class="headerlink" title="操作系统的使用场景"></a>操作系统的使用场景</h3><p>该操作系统设计的场景是实时响应外部需求，因为实时性的要求，业务场景中有 36 个物理核心，每个物理核心上运行一个操作系统。业务数据流就像通过流水线一样，依次经过每个核的处理。由于每个核之间需要交互，因此操作系统需要负责进程切换，核间通信。<br>由于每个操作系统上只有少量进程，为了提高任务切换速度，所有的进程资源共享。这种简化版的进程在系统中被称为任务。由于使用场景明确，系统没有提供用户接口，任务创建通过代码实现，示意流程代码如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Task</span> tcb;</span><br><span class="line">    </span><br><span class="line">    tcb.name = 'Tsk_01';</span><br><span class="line">    tcb.prior = <span class="number">20</span>;</span><br><span class="line">    create_task(&amp;tcb);</span><br><span class="line"></span><br><span class="line">    tcb.name = 'Tsk_02';</span><br><span class="line">    tcb.prior = <span class="number">22</span>;</span><br><span class="line">    create_task(&amp;tcb);</span><br><span class="line"></span><br><span class="line">    OS_Start();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"======error======"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="任务的调度"><a href="#任务的调度" class="headerlink" title="任务的调度"></a>任务的调度</h3><p>任务调度的两个问题是 1. 何时调度，2. 如何调度。</p>
-<h5 id="何时启动调度"><a href="#何时启动调度" class="headerlink" title="何时启动调度"></a>何时启动调度</h5><p>按照设计，系统中每个任务优先级不同，最多支持32个任务。系统采用抢占式优先级任务调度算法。任务从就绪队列中选择优先级最高的任务执行，当出现更高的优先级时，立即切换到高优先级任务。任务的切换有两种方式：</p>
+<p><img src="../img/5G-OSI-01.png" alt="img"><br>在有线网络中，数据链路层是以太网(Ethern)。在无线通信中，数据链路层是 LTE/NR 网络。</p>
+<h2 id="5G-NR协议栈"><a href="#5G-NR协议栈" class="headerlink" title="5G NR协议栈"></a>5G NR协议栈</h2><p>NR无线协议栈分为两个平面：用户面和控制面。用户面(User Plane, UP）协议栈即用户数据传输采用的协议簇，控制面(Control Plane, CP)协议栈即系统的控制信令传输采用的协议簇。NR用户面和控制面协议栈稍有不同。</p>
+<h3 id="控制面"><a href="#控制面" class="headerlink" title="控制面"></a>控制面</h3><p>NR控制面协议几乎与LTE协议栈一模一样，从上到下依次为：</p>
 <ol>
-<li>被动调度。每隔一小段时间，操作系统会进行一次检查，从就绪队列中选区最高优先级的任务，如果该任务的优先级高于当前任务，便进行任务切换。</li>
-<li>高优先级任务主动放弃运行。高优先级任务通过调用 sleep(), pend() 等函数将自身切换到就绪态，然后显式调用调度函数 Sched() 切换到就绪队列中最高优先级的任务。</li>
+<li>NAS层：Non-Access Stratum</li>
+<li>RRC层：Radio Resource Control</li>
+<li>PDCP层：Packet Data Convergence Protocol</li>
+<li>RLC层：Radio Link Con trol</li>
+<li>MAC层：Medium Access Control</li>
+<li>PHY层：Physical</li>
 </ol>
-<p>这种调度方式优点是简单高效， 但是可能出现优先级翻转的问题。优先级翻转是抢占式调度常见的问题， 考虑如下场景： </p>
-<ul>
-<li>系统上有三个任务A,B,C. 优先级 A &lt; B &lt; C. A, C 需要使用共享资源S. </li>
-<li>在最开始，A 正在运行，使用到了共享资源 S 并对其加锁。</li>
-<li>C 任务被激活，抢占 CPU。尝试使用共享资源 S ,发现被加锁。开始等待并进入到阻塞态。</li>
-<li>B 任务被激活，抢占cpu，过一段时间后主动释放cpu 。</li>
-<li>A 任务恢复，使用完共享资源S，释放cpu。</li>
-<li>C 任务开始执行，使用共享资源 S<br>可以看到，由于低优先级任务 A 占用了共享资源，高优先级任务 C 被迫在任务 B 之后执行。如果 A, C 之间存在多个任务，将导致高优先级任务的响应时间不可控，在实时系统中，这是不被允许的。系统中采取优先级天花板的方法来解决这个问题：</li>
-<li>C 任务申请共享资源 S 时，如果发现共享资源 S 被低优先级任务 A 占用。便将任务 A 提高至最高优先级，然后依次执行 A 任务，C 任务。</li>
-</ul>
-<h5 id="如何切换运行状态"><a href="#如何切换运行状态" class="headerlink" title="如何切换运行状态"></a>如何切换运行状态</h5><p>任务切换涉及到运行状态的保存和恢复。在系统中，需要保存恢复现场有如下几种情况：</p>
+<p><img src="../img/5G-OSI-04.png" alt="img"></p>
+<h3 id="用户面"><a href="#用户面" class="headerlink" title="用户面"></a>用户面</h3><p>NR用户平面相比LTE协议栈多了一层SDAP层，用户面协议从上到下依次是：</p>
 <ol>
-<li>进入中断，退出中断。</li>
-<li>主动放弃任务，切换至低优先级任务。即任务切换中的情况1。</li>
-<li>进入中断，就绪队列出现高优先级任务，切换任务，返回至新任务。即任务切换中的情况2.</li>
+<li>SDAP层：Service Data Adaptation Protocol</li>
+<li>PDCP层：Packet Data Convergence Protocol</li>
+<li>RLC层：Radio Link Control</li>
+<li>MAC层：Medium Access Control</li>
+<li>PHY层：Physical</li>
 </ol>
-<p>保存现场需要将当时任务运行状态保存至当前任务栈中，接着切换任务，重新设置栈指针，然后从新的任务栈中恢复运行状态。这一部分代码因为涉及到寄存器操作，必然是汇编代码，在 ARMv8 AARCh64 下，核心代码如下：</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">//asm <span class="meta">code</span></span><br><span class="line"><span class="symbol">intc_handle</span>:</span><br><span class="line">    save_regs</span><br><span class="line">    IRS here</span><br><span class="line">    <span class="meta">if</span> curRedey &gt; curRuning then</span><br><span class="line">        tsk_switch</span><br><span class="line">    restore_regs</span><br><span class="line">    eret</span><br><span class="line"></span><br><span class="line">// c <span class="meta">code</span> </span><br><span class="line"><span class="symbol">void</span> sched()&#123;</span><br><span class="line">    disable intc</span><br><span class="line">    tsk_switch_ctx</span><br><span class="line">    restore intc</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="symbol">tsk_switch_ctx</span>:</span><br><span class="line">  save_regs</span><br><span class="line"><span class="symbol">tsk_switch</span>:</span><br><span class="line">  <span class="keyword">switch </span>task tcb <span class="keyword">and </span><span class="built_in">sp</span></span><br><span class="line">  restore_regs</span><br><span class="line">  eret</span><br><span class="line"></span><br><span class="line"><span class="symbol">save_regs</span>:</span><br><span class="line">  save X29-X0</span><br><span class="line">  save SPSR, ELR, <span class="built_in">LR</span> </span><br><span class="line"></span><br><span class="line"><span class="symbol">restore_regs</span>:</span><br><span class="line">  restore X29-X0</span><br><span class="line">  resotre SPSR, ELR, <span class="built_in">LR</span></span><br></pre></td></tr></table></figure>
-<p>任务调度两个入口分别是intc_handle 和 sched(). 中断/任务返回时，需要使用 eret 保证切换任务和 PSTATE 的状态同时切换。</p>
+<p><img src="../img/5G-OSI-03.png" alt="img"><br>UE所有的协议栈都位于UE内；而在网络侧，NAS层不位于基站gNB上，而是在核心网的AMF （Access and Mobility Management Function）实体上。还有一点需要强调的是，控制面协议栈不包含SDAP层。</p>
+<h2 id="NR-层2功能介绍"><a href="#NR-层2功能介绍" class="headerlink" title="NR 层2功能介绍"></a>NR 层2功能介绍</h2><p>OSI协议体系中的数据链路层对应 NR 的层2，包含SDAP、PDCP、RLC和MAC层。整体结构如下：<br><img src="../img/5G-OSI-02.png" alt="img"><br>其中每层具体工作是如下：<br><img src="../img/5G-OSI-05.png" alt="img"></p>
+<h3 id="MAC子层"><a href="#MAC子层" class="headerlink" title="MAC子层"></a>MAC子层</h3><p>MAC 层服务和功能的包括：</p>
+<ol>
+<li>逻辑信道与传输信道之间的映射</li>
+<li>复用、解复用。将来自一个或多个逻辑信道的MAC SDU复用到一个传输块并传递给PHY；将从物理层传来的传输块解复用成多个MAC SDU并传递给逻辑信道</li>
+<li>报告调度信息</li>
+<li>通过HARQ进行错误纠正（在载波聚合中，每个载波对应一个HARQ实体）</li>
+<li>通过动态调度管理用户间的优先级</li>
+<li>逻辑信道优先级管理</li>
+<li>填充</li>
+</ol>
+<p>根据传输信息的类型来区分。MAC子层分为不同的逻辑信道。逻辑信道主要分为两类：控制信道和业务信道。<br>控制信道用于传输控制平面的信息，包括：</p>
+<ol>
+<li>BroadcastControl Channel (BCCH)：用于广播系统控制信息的下行信道</li>
+<li>BroadcastControl Channel (BCCH)：用于转发寻呼消息和系统信息变更的下行信道</li>
+<li>CommonControl Channel (CCCH)：当UE与网络没有建立RRC Connection时，UE与网络间传输控制信息的信道</li>
+<li>DedicatedControl Channel (DCCH)：当UE与网络已经建立RRC Connection时，UE与网络间传输控制信息的一对一信道</li>
+</ol>
+<p>业务信道用于传输用户平面的信息，包含：</p>
+<ol>
+<li>DedicatedTraffic Channel (DTCH)：一对一信道，指向一个UE，传输UE的业务数据，在上下行中都存在。</li>
+</ol>
+<p>逻辑信道同物理信道有着映射关系：</p>
+<table>
+<thead>
+<tr>
+<th>下行</th>
+<th>上行</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BCCH–&gt; BCH</td>
+<td></td>
+</tr>
+<tr>
+<td>BCCH–&gt; DL-SCH</td>
+<td></td>
+</tr>
+<tr>
+<td>PCCH–&gt; PCH</td>
+<td></td>
+</tr>
+<tr>
+<td>CCCH–&gt; DL-SCH</td>
+<td>CCCH–&gt; UL-SCH</td>
+</tr>
+<tr>
+<td>DCCH–&gt; DL-SCH</td>
+<td>DTCH–&gt; UL-SCH</td>
+</tr>
+<tr>
+<td>DTCH–&gt; DL-SCH</td>
+<td>DCCH–&gt; UL- SCH</td>
+</tr>
+</tbody></table>
+<h3 id="RLC子层"><a href="#RLC子层" class="headerlink" title="RLC子层"></a>RLC子层</h3><p>与LTE系统一样，NR RLC也包含三种传输模式：</p>
+<ol>
+<li>TransparentMode (TM)</li>
+<li>UnacknowledgedMode (UM)</li>
+<li>AcknowledgedMode (AM)</li>
+</ol>
+<p>每个逻辑信道对应一种RLC配置，RLC配置和ARQ都不依赖于物理层子载波间隔、CP类型和TTI长度等。</p>
+<ol>
+<li>SRB0承载、寻呼和系统信息广播采用TM传输模式</li>
+<li>其他SRB承载采用AM传输模式</li>
+<li>DRB承载可以采用AM或UM模式</li>
+</ol>
+<p>RLC子层的服务和功能包括：</p>
+<ol>
+<li>传输上层的PDU</li>
+<li>编号（与PDCP层编码独立）（UM与AM模式）</li>
+<li>通过ARQ纠错（AM模式）</li>
+<li>对RLC SDU进行分割（UM与AM模式）和重分割（AM模式重传时）</li>
+<li>重组RLC SDU（UM与AM模式）</li>
+<li>重复检测（根据编号进行，AM模式）</li>
+<li>RLCSDU丢弃（UM与AM模式）</li>
+<li>RLC层重建</li>
+<li>协议错误检测（AM模式）</li>
+</ol>
+<h3 id="PDCP子层"><a href="#PDCP子层" class="headerlink" title="PDCP子层"></a>PDCP子层</h3><p>PDCP子层在用户面服务和功能包括：</p>
+<ol>
+<li>编号</li>
+<li>头压缩和解压缩（ROHC算法）</li>
+<li>传输用户数据</li>
+<li>重排序和重复检测</li>
+<li>PDCP PDU路由（当存在Bear Split时）</li>
+<li>PDCP SDU重传</li>
+<li>加密、解密和完整性保护</li>
+<li>PDCP SDU丢弃</li>
+<li>PDCP重建、为RLC AM恢复数据</li>
+<li>PDCP PDU复制</li>
+</ol>
+<p>PDCP子层在控制平面功能包括</p>
+<ol>
+<li>编号</li>
+<li>加密、解密和完整性保护</li>
+<li>传输控制面数据</li>
+<li>重排序和重复检测</li>
+<li>PDCP PDU复制</li>
+</ol>
+<h3 id="SDAP子层"><a href="#SDAP子层" class="headerlink" title="SDAP子层"></a>SDAP子层</h3><p>每个PDU Session对应一个SDAP实体，和 IP 层的交互发生在这里，其功能包括：</p>
+<ol>
+<li>QoS流与无线承载之间的映射</li>
+<li>在上下行数据包中标识QoS flow ID (QFI)</li>
+</ol>
 
       
     </div>
@@ -356,8 +459,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/p/2473078899.html" rel="next" title="C++单元测试框架——gtest">
-                <i class="fa fa-chevron-left"></i> C++单元测试框架——gtest
+              <a href="/p/1245973073.html" rel="next" title="实时操作系统里的任务调度">
+                <i class="fa fa-chevron-left"></i> 实时操作系统里的任务调度
               </a>
             
           </div>
@@ -365,10 +468,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/p/4069360271.html" rel="prev" title="OSI协议体系和5G协议栈的关系">
-                OSI协议体系和5G协议栈的关系 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -503,7 +602,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#操作系统的使用场景"><span class="nav-number">1.</span> <span class="nav-text">操作系统的使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务的调度"><span class="nav-number">2.</span> <span class="nav-text">任务的调度</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#何时启动调度"><span class="nav-number">2.0.1.</span> <span class="nav-text">何时启动调度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如何切换运行状态"><span class="nav-number">2.0.2.</span> <span class="nav-text">如何切换运行状态</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#OSI-协议体系"><span class="nav-number">1.</span> <span class="nav-text">OSI 协议体系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5G-NR协议栈"><span class="nav-number">2.</span> <span class="nav-text">5G NR协议栈</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#控制面"><span class="nav-number">2.1.</span> <span class="nav-text">控制面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用户面"><span class="nav-number">2.2.</span> <span class="nav-text">用户面</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NR-层2功能介绍"><span class="nav-number">3.</span> <span class="nav-text">NR 层2功能介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MAC子层"><span class="nav-number">3.1.</span> <span class="nav-text">MAC子层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RLC子层"><span class="nav-number">3.2.</span> <span class="nav-text">RLC子层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PDCP子层"><span class="nav-number">3.3.</span> <span class="nav-text">PDCP子层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SDAP子层"><span class="nav-number">3.4.</span> <span class="nav-text">SDAP子层</span></a></li></ol></li></ol></div>
             
 
           </div>
