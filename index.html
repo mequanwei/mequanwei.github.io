@@ -2,10 +2,8 @@
 
 
 
-  
 
-
-<html class="theme-next gemini use-motion" lang="en">
+<html class="theme-next gemini" lang="en">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -68,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="wuee, blog,share" />
 
 
 
@@ -98,10 +96,10 @@
     root: '/',
     scheme: 'Gemini',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: 'Author'
@@ -181,9 +179,7 @@
       
         
         <li class="menu-item menu-item-home">
-          <a href="/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+          <a href="/" rel="section">
             
             Home
           </a>
@@ -191,9 +187,7 @@
       
         
         <li class="menu-item menu-item-archives">
-          <a href="/archives/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+          <a href="/archives" rel="section">
             
             Archives
           </a>
@@ -306,7 +300,7 @@
           <p>从上电的第一行代码到 init 进程启动</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/p/2549394188.html#more" rel="contents">
+            <a class="btn" href="/p/2549394188.html" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -431,7 +425,7 @@
           <p>工作中遇到一个问题，在CPU主频很低的情况下，memset/memcpy 等函数的执行耗时相当大。需要进行性能优化。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/p/3178013999.html#more" rel="contents">
+            <a class="btn" href="/p/3178013999.html" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -556,7 +550,7 @@
           <p>众所周知，在计算机网络中，OSI协议体系将网络分为七层。实际应用中，根据关注点的不同，又演变出不同的协议栈体系，不过协议的本质没区别。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/p/4069360271.html#more" rel="contents">
+            <a class="btn" href="/p/4069360271.html" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -681,7 +675,7 @@
           <p>最近接手一个实时操作系统内核，在此聊聊系统中的进程管理，包括调度，通信等。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/p/1245973073.html#more" rel="contents">
+            <a class="btn" href="/p/1245973073.html" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -806,7 +800,7 @@
           <p>最近写C++代码，有时需要测试一两个小函数的功能，需要一个单元测试框架。搜索之后找到 goolge 维护的一个 c++ 单元测试框架——gtest. </p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/p/2473078899.html#more" rel="contents">
+            <a class="btn" href="/p/2473078899.html" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -892,9 +886,7 @@
 
             
               <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%20%7C%7C%20archive">
-              
+                <a href="/archives">
                   <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
@@ -940,6 +932,11 @@
 
       
 
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
       
 
     </div>
@@ -987,11 +984,6 @@
       </div>
     </footer>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
     
 
     
