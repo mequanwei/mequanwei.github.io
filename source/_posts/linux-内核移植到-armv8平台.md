@@ -1,5 +1,5 @@
 ---
-title: linux 内核移植到 armv8 平台
+title: 从零开始的内核启动启动
 abbrlink: 2549394188
 date: 2020-06-13 07:25:18
 tags:
@@ -8,14 +8,14 @@ tags:
 从上电的第一行代码到 init 进程启动
 <!--more-->
 
-本文主要描述在嵌入式 ARM V8 平台下的启动过程，x86 平台基本一致。cpu 上电之后就开始执行指令，在 init 进程启动之前，依次会经过 TF-A，uboot，linux 内核初始化三个阶段。在内核初始化的最后，需要挂载根文件系统。所以我们还需要从busybox制作一个最简单的根文件系统。
+本文主要描述在嵌入式 ARM V8 平台下的启动过程，x86 平台基本一致。cpu 上电之后就开始执行指令，在 init 进程启动之前，依次会经过 TF-A，uboot，linux 内核初始化三个阶段。在内核初始化的最后，需要挂载根文件系统。所以还需要一个根文件系统。
 
 在 arm Neoverse N1 FVP 平台上，启动命令如下
 ```
 ./FVP_Base_Neoverse_N1x4 -C bp.secureflashloader.fname=bl1.bin -C bp.flashloader0.fname=fip.bin --data cluster0.cpu0=Image@0x80080000 \
 --data cluster0.cpu0=devtree.dtb@0x84000000 --data cluster0.cpu0=ramdisk.img@0x88000000  -C bp.virtioblockdevice.image_path=vdisk.img " 
 ```
-可以看到，总共需要tf-a固件 bl1.bin, fip.bin, 设备树文件devtree.dst，内核镜像 Image， 根文件系统ramdisk，和一个选配的虚拟磁盘 vdisk.img.
+可以看到，总共需要tf-a固件 bl1.bin, fip.bin, 设备树文件devtree.dst，内核镜像 Image， 根文件系统 ramdisk，和一个选配的虚拟磁盘 vdisk.img.
 
 ## TF-A
 uboot 作为 bootloader, 是可以在裸核环境下运行的。那么 TF-A （Trusted Firmware-A）是什么呢？ ARM 官方的定义是 TF-A 是一个安全监视器 （Secure Monitor）。ARM 为嵌入式设备提供了一套硬件安全机制，用以存放需要额外保护的信息，如指纹，证书等。为了驱动这套安全机制，ARM 提供的一个标准启动流程，这就是 TF-A。其主要的功能是从安全区域启动，对硬件做简单的初始化，引导 uboot 从非安全世界启动。这里不做过多的介绍，不需要它我们也可以直接从 uboot 启动。
@@ -30,14 +30,14 @@ uboot的作用是引导操作系统内核启动。在 uboot 启动时，会设�
 
 ### uboot 的流程
 
-uboot 从 arch/cpu/armv8/start.S 启动，大致操作是判断启动的 cpu id。对于 cpu0 执行初始化流程，其他 cpu 休眠等待 cpu0 的唤醒。cpu0 初始化向量表，初始化内存，然后跳转到 common/board_init_r 。具体如下：
+uboot 从 arch/cpu/armv8/start.S 启动，大致操作是判断启动的 cpu id。对于 cpu0 执行初始化流程，其他 cpu 休眠等待 cpu0 的唤醒。cpu0 初始化向量表，初始化内存，然后打开命令行窗口等待命令。具体如下：
 
 1. 启动后首先将自己的从 flash 搬运到链接地址，然后重新开始运行。由于我们通过 tf-a 直接将uboot加载到内存，实际上 uboot 已经在链接地址了。
 2. 然后将初始化向量表，跳转到 _main
 3. 在 _main 中跳转到 board_init_r，board_init_r 中调用一个初始化函数列表，依次调用各个初始化函数，最后进入 run_main_loop 进入 main 循环。
 
 ```asm
-start.S
+arch/cpu/armv8/start.S
 
 pie_fixup:
 	adr	x0, _start		/* x0 <- Runtime value of _start */
@@ -61,33 +61,101 @@ slave_cpu:
 	br	x0			/* branch to the given address */
 master_cpu:
 	bl	_main
-```
 
-```
 arch/cpu/lib/crt0_64.S
 ENTRY(_main)
 	...
 	b	board_init_r			/* PC relative jump */
 	/* NOTREACHED - board_init_r() does not return */
 ENDPROC(_main)
-```
 
-```
-board_init_r.c
-...
-void board_init_r(gd_t *new_gd, ulong dest_addr)
-{
-	init_sequence_r={
+common/board_init_r.c
+init_sequence_r={
 		...
 		initr_console_record,
 		cpu_init_r,
 		initr_env,
 		...
-	}
+		run_main_loop,
+}
 
+void board_init_r(gd_t *new_gd, ulong dest_addr)
+{
+	
 	if (initcall_run_list(init_sequence_r))
 		hang();
 	/* NOTREACHED - run_main_loop() does not return */
+}
+```
+在 main 循环中， uboot 初始化了一个 cli 接口用于交互。至此 uboot 已经进入工作状态，可以通过输入 bootm/booti/boot 等命令，让uboot开始加载内核。
+```
+void main_loop(void)
+{
+	...
+	cli_init();
+	...
+	cli_loop();
+	panic("No CLI available");
+}
+```
+在输入 bootm 命令之后，通过 cmd/bootm.c 中的 do_bootm 调用 common/bootm.c 中的 do_bootm_states 开始找到内核镜像，判断 OS 类型。将真正的启动函数存放在 boot_fn 指针中。 arm linux 对应的 boot_fn 函数是位于 arch/arm/lib/bootm.c 下的 do_bootm_linux(). 然后通过 boot_prep_linux 函数将命令行参数写入 gd->bd 。最后在 boot_prep_linux 中通过函数指针跳转之内核起始地址，以EL2的状态启动内核。
+
+```
+common/bootm.c
+
+nt do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[], int states, bootm_headers_t *images,
+		    int boot_progress)
+{
+	...
+	ret = bootm_find_os(cmdtp, flag, argc, argv);
+	...
+	ret = bootm_load_os(images, 0);
+	...
+	boot_fn = bootm_os_get_boot_func(images->os.os);  //根据操作系统类型设置启动函数
+	...	
+	/* Now run the OS! We hope this doesn't return */
+	
+	ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
+				images, boot_fn);
+
+	return ret;
+}
+
+arch/arm/lib/bootm.c 
+nt do_bootm_linux(int flag, int argc, char *const argv[],
+		   bootm_headers_t *images)
+{
+	boot_prep_linux(images);
+	boot_jump_linux(images, flag);
+	return 0;
+}
+
+static void boot_prep_linux(bootm_headers_t *images)
+{
+	char *commandline = env_get("bootargs");
+	
+	...
+	setup_start_tag(gd->bd);
+	...
+	setup_serial_tag(&params);
+	setup_commandline_tag(gd->bd, commandline);
+	...
+		
+	setup_end_tag(gd->bd);
+	}
+}
+
+static void boot_jump_linux(bootm_headers_t *images, int flag)
+{
+	...
+	kernel_entry = (void (*)(void *fdt_addr, void *res0, void *res1,
+				void *res2))images->ep;
+	...
+	armv8_switch_to_el2((u64)images->ft_addr, 0, 0, 0,
+					    images->ep,
+					    ES_TO_AARCH64);
+	
 }
 ```
 
@@ -154,7 +222,7 @@ start_kernel 在 init/main.c 中，有一些列的初始化函数，包括体系
 
 在初始化进行到一半过后，会初始化串口，接下来串口就会有输出，我们就可以调用 printk 从内核打印调试信息。这里就会有一个问题，内核初始化一开始就会有打印 ，但是直到初始化过半串口才就绪。这之前的打印怎么输出的呢。答案是，输出会存在内存的缓冲区里，等串口就绪之后才输出。如果通过uboot传递了early_con 参数，会采用传递过来的串口进行输出。然后等待正式串口就绪后替换掉 early_con.
 
-在 start_kernel 的最后，调用了reset_init，进行剩下的初始化操作。 rest_init 中启动了2个内核线程，kernel_init 用来加载根文件系统，kthreadd 线程用来管理和调度其他线程和进程。最后会进入idel模式等待调度。
+在 start_kernel 的最后，调用了reset_init，进行剩下的初始化操作。 rest_init 中启动了2个内核进程，kernel_init 用来加载根文件系统，kthreadd 线程用来管理和调度其他线程和进程。最后会进入idel模式等待调度。
 ```
 main.c
 asmlinkage __visible void __init start_kernel(void)
@@ -197,4 +265,59 @@ reset_init()
 }
 ```
 
-在 kernel_init 中，挂载完根文件系统后，会按照/sbin/init，/etc/init,,/bin/init, bin/sh 的顺序调用初始化进程，完成启动。这个里涉及到根文件系统的制作和挂载，留待下篇再谈。
+## 根文件系统的制作
+在 kernel_init 中，会挂载完根文件系统。这个里涉及到根文件系统的制作和挂载。
+
+下载 [busybox](https://busybox.net/) 然后编译 make menu 进行配置，一般采用默认配置即可。然后make -j96 即可。通过 make install PREFIX=/build/rootfs 将编译的文件拷贝到 rootfs目录下。接下来需要制作一个ramdisk镜像。
+
+```
+sudo dd if=/dev/zero of=ramdisk bs=1k count=16384
+sudo mkfs.ext2 -F ramdisk
+
+sudo mkdir -p ./initrd
+sudo mount -t ext2 ramdisk ./initrd
+sudo cp rootfs/* ./initrd -raf
+
+
+sudo mknod initrd/dev/console c 5 1  //根文件系统中需要两个设备
+sudo mknod initrd/dev/null c 1 3
+
+sudo umount ./initrd
+ 
+sudo gzip --best -c ramdisk > ramdisk.gz
+sudo mkimage -n "ramdisk" -A arm -O linux -T ramdisk -C gzip -d ramdisk.gz ramdisk.img
+```
+
+在内核的 kernel_init 进程中，挂载完根文件系统，会尝试通过运行 execute_command 命令，该命令是内核参数 rdinit 指定，通过 uboot 传递进来。如果执行失败，会按照/sbin/init，/etc/init,,/bin/init, bin/sh 的顺序调用初始化进程完成启动。
+
+```
+init/main.c
+static int __ref kernel_init(void *unused)
+{
+...
+	system_state = SYSTEM_RUNNING;
+	
+	...
+
+	if (ramdisk_execute_command) {
+		ret = run_init_process(ramdisk_execute_command);
+		if (!ret)
+			return 0;
+		pr_err("Failed to execute %s (error %d)\n",
+		       ramdisk_execute_command, ret);
+	}
+	...
+	if (execute_command) {
+		ret = run_init_process(execute_command);
+		if (!ret)
+			return 0;
+		panic("Requested init %s failed (error %d).",
+		      execute_command, ret);
+	}
+	if (!try_to_run_init_process("/sbin/init") ||
+	    !try_to_run_init_process("/etc/init") ||
+	    !try_to_run_init_process("/bin/init") ||
+	    !try_to_run_init_process("/bin/sh"))
+		return 0;
+```
+至此，init 进程启动。内核启动完成，开始正常工作。
