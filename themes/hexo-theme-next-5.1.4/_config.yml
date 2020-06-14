@@ -35,7 +35,7 @@ favicon:
   #ms_browserconfig: /images/browserconfig.xml
 
 # Set default keywords (Use a comma to separate)
-keywords: "Hexo, NexT"
+keywords: "wuee, blog,share"
 
 # Set rss to false to disable feed link.
 # Leave rss as empty to use site's feed link.
@@ -94,18 +94,18 @@ index_with_subtitle: false
 # Value before `||` delimeter is the target link.
 # Value after `||` delimeter is the name of FontAwesome icon. If icon (with or without delimeter) is not specified, question icon will be loaded.
 menu:
-  home: / || home
+  home: /|| home
   #about: /about/ || user
   #tags: /tags/ || tags
   #categories: /categories/ || th
-  archives: /archives/ || archive
+  archives: /archives||archive
   #schedule: /schedule/ || calendar
   #sitemap: /sitemap.xml || sitemap
   #commonweal: /404/ || heartbeat
 
 # Enable/Disable menu icons.
 menu_icons:
-  enable: true
+  enable: false
   
 
 
@@ -199,7 +199,7 @@ sidebar:
   offset: 12
 
   # Back to top in sidebar (only for Pisces | Gemini).
-  b2t: false
+  b2t: true
 
   # Scroll percent label in b2t button.
   scrollpercent: false
@@ -213,7 +213,7 @@ sidebar:
 # ---------------------------------------------------------------
 
 # Automatically scroll page to section which is under <!-- more --> mark.
-scroll_to_more: true
+scroll_to_more: false
 
 # Automatically saving scroll position on each post/page in cookies.
 save_scroll: false
@@ -341,7 +341,7 @@ font:
   codes:
     external: true
     family:
-    size:
+    size: 14
 
 
 # ---------------------------------------------------------------
@@ -663,7 +663,7 @@ tabs:
 # Use velocity to animate everything.
 motion:
   enable: true
-  async: false
+  async: true
   transition:
     # Transition variants:
     # fadeIn | fadeOut | flipXIn | flipXOut | flipYIn | flipYOut | flipBounceXIn | flipBounceXOut | flipBounceYIn | flipBounceYOut
