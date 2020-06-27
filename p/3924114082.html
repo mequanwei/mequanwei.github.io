@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="wuee, blog,share" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="疫情期间将丢了好久的 C++ 后台开发相关知识捡了回来，同时萌生了写一个小项目的想法。可以将已有知识融会贯通，以后找工作还能展示一下。先从最简单的 socket 通信开始，随后有什么想法，新技术之类的都会加在项目中。在此记录项目的完善过程，项目源码在 github。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux TCP服务器——通过socket建立连接">
+<meta property="og:url" content="https://mequanwei.github.com/p/3924114082.html">
+<meta property="og:site_name" content="Wuee&#39;s Blog">
+<meta property="og:description" content="疫情期间将丢了好久的 C++ 后台开发相关知识捡了回来，同时萌生了写一个小项目的想法。可以将已有知识融会贯通，以后找工作还能展示一下。先从最简单的 socket 通信开始，随后有什么想法，新技术之类的都会加在项目中。在此记录项目的完善过程，项目源码在 github。">
+<meta property="og:image" content="https://mequanwei.github.com/img/socket-01.jpg">
+<meta property="article:published_time" content="2020-03-27T09:03:42.000Z">
+<meta property="article:modified_time" content="2020-06-27T14:18:30.034Z">
+<meta property="article:author" content="Quanwei">
+<meta property="article:tag" content="博客">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mequanwei.github.com/img/socket-01.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mequanwei.github.com/p/3924114082.html"/>
+
+
+
+
+
+  <title>Linux TCP服务器——通过socket建立连接 | Wuee's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Wuee's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://mequanwei.github.com/p/3924114082.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Quanwei">
+      <meta itemprop="description" content="">
+      
+      <meta itemprop="image" content="/images/github_avatar.png"> 
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wuee's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux TCP服务器——通过socket建立连接</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-27T05:03:42-04:00">
+                2020-03-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>疫情期间将丢了好久的 C++ 后台开发相关知识捡了回来，同时萌生了写一个小项目的想法。可以将已有知识融会贯通，以后找工作还能展示一下。先从最简单的 socket 通信开始，随后有什么想法，新技术之类的都会加在项目中。在此记录项目的完善过程，项目源码在 <a href="https://github.com/mequanwei/wServer" target="_blank" rel="noopener">github</a>。</p>
+<a id="more"></a>
+
+<h2 id="socket"><a href="#socket" class="headerlink" title="socket"></a>socket</h2><p>客户端和服务器依靠 socket 通信。socket是一种特殊的文件，socket 相关函数就是对其进行读写，打开关闭等操作。在网络编程中，很多应用层协议都是对socket的封装。当创建一个 socket 时，操作系统就返回一个文件描述符来标识这个套接字。然后，应用程序以该描述符作为传递参数，通过调用函数来完成操作。</p>
+<h2 id="连接过程"><a href="#连接过程" class="headerlink" title="连接过程"></a>连接过程</h2><p>整体通信过程如下图。<br><img src="../img/socket-01.jpg" alt="img"></p>
+<h2 id="具体过程和API"><a href="#具体过程和API" class="headerlink" title="具体过程和API"></a>具体过程和API</h2><p>socket 调用需要用到 glibc 提供的接口，这些接口都在 sys/socket.h 中。主要用的的几个接口如下。<br>首先介绍服务端需要做的工作。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>socket 函数返回一个文件描述符用于通信。其第一个参数是协议域，一般取 AF_INET 表示IPV4 协议。第二个参数表示协议类型，常用取值有 SOCK_STREAM 代表 TCP、SOCK_DGRAM代表UDP。第三个参数表示指定协议，一般取0表示自动选择。</p>
+<p>在打开了 socket 之后，socket不知道具体的通信地址。如果想要给它赋值一个地址，就必须调用 bind() 函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">bind</span><span class="params">(<span class="keyword">int</span> socket, <span class="keyword">const</span> struct sockaddr *address, <span class="keyword">socklen_t</span> address_len)</span></span>;</span><br><span class="line">sockaddr_in ser_addr;</span><br><span class="line">ser_addr.sin_family = AF_INTR;</span><br><span class="line">ser_addr.s_aaddr = htonl (ACCEPTED_ADDRESS)</span><br><span class="line">ser_addr.sin_port = htons(PORT)</span><br></pre></td></tr></table></figure>
+<p>bind 函数将 socket 和一个通信地址绑定。这个地址的类型和之前选择的协议域有关，如果是IPV4协议，那么对应的类型是 sockaddr_in。通过 IP 和端口号标识位置。bind() 函数的第一个参数是之前生成的 socket 描述符。第二个参数是地址结构体，第三个参数是地质结构体的长度。因为这里要对地址结构体进行强制类型转换，所以需要长度信息。</p>
+<p>绑定了地址信息之后需要将 socket 转为监听状态。socket 默认是主动连接模式，只能连接其他socket，通过调用listen()函数可以将其转为可以接收其他socket 消息的装态。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">listen</span><span class="params">(<span class="keyword">int</span> socket, <span class="keyword">int</span> backlog)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>第一个参数是 socket 描述符，第二个参数表示最大等待的连接个数。当超过这个连接个数时，系统将丢弃新来的来连接请求。</p>
+<p>在设置了监听状态之后，便可以通过 accept 开始监听。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">accept</span><span class="params">(<span class="keyword">int</span> socket, struct sockaddr *<span class="keyword">restrict</span> address, <span class="keyword">socklen_t</span> *<span class="keyword">restrict</span> address_len)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>第一个参数是 socket 描述符，第二个参数是一个地址结构体，用于接收连接到socket上的客户端信息。第三个参数时地址结构体的长度。</p>
+<p>客户端的过程和服务端类似，需要创建 socket 和绑定地址信息。接下来如果时 tcp 连接，需要调用 connect 函数进行三次握手。如果是 udp 连接，则不需要此步骤。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">connect</span><span class="params">(<span class="keyword">int</span> socket, <span class="keyword">const</span> struct sockaddr *address,<span class="keyword">socklen_t</span> address_len)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>第一个参数是 socket 描述符，第二个参数是一个地址结构体，用于接收服务端socket的信息。第三个参数时地址结构体的长度。</p>
+<p>连接建立之后，就可以通过 send/recv,sendto/recvfrom 来通信。这两组函数功能一致，但是 sendto 可以在没有建立连接的情况使用，在使用时需要传入地址信息。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> send (<span class="keyword">int</span> __fd, <span class="keyword">const</span> <span class="keyword">void</span> *__buf, <span class="keyword">size_t</span> __n, <span class="keyword">int</span> __flags);</span><br><span class="line"><span class="keyword">ssize_t</span> sendto (<span class="keyword">int</span> __fd, <span class="keyword">const</span> <span class="keyword">void</span> *__buf, <span class="keyword">size_t</span> __n, <span class="keyword">int</span> __flags, __CONST_SOCKADDR_ARG __addr, <span class="keyword">socklen_t</span> __addr_len);</span><br></pre></td></tr></table></figure>
+
+<p>最后，通信完成记得关闭socket</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">close</span><span class="params">(<span class="keyword">int</span> fildes)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="实例代码"><a href="#实例代码" class="headerlink" title="实例代码"></a>实例代码</h2><p>这里展示了一个 tcp 服务器，该服务器接收到客户端信息之后，调用一个子进程将该信息写回给客户端。然后继续监听其他客户端请求。</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ACCEPTED_ADDRESS INADDR_ANY</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PORT 1234</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BACKLOG 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFER_SIZE 1024</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> server_socket;</span><br><span class="line">    <span class="keyword">int</span> client_socket;</span><br><span class="line">    <span class="keyword">char</span> msg[BUFFER_SIZE]; <span class="comment">/*buffer*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">ser_addr</span>;</span> <span class="comment">/* server address */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">cli_addr</span>;</span> <span class="comment">/* client address,unused */</span>    </span><br><span class="line">    <span class="comment">//create socket</span></span><br><span class="line">    <span class="comment">//int socket(int domain, int type, int protocol);</span></span><br><span class="line">    server_socket = socket(AF_INET,SOCK_STREAM,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (server_socket&lt;<span class="number">0</span>)&#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">"open socket error"</span>);</span><br><span class="line">    	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//bind socket</span></span><br><span class="line">    ser_addr.sin_family=AF_INET;</span><br><span class="line">    ser_addr.sin_addr.s_addr=htonl(ACCEPTED_ADDRESS);</span><br><span class="line">    ser_addr.sin_port=htons(PORT);    </span><br><span class="line">    <span class="keyword">if</span>(bind(server_socket,(struct sockaddr*)&amp;ser_addr,<span class="keyword">sizeof</span>(struct sockaddr_in)) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">"bind error"</span>);</span><br><span class="line">    	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="comment">//set listening status;</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">listen</span>(server_socket,BACKLOG)&lt;<span class="number">0</span>)&#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">"listening error"</span>);</span><br><span class="line">    	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"begin listening"</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//	handle listening</span></span><br><span class="line">    <span class="keyword">socklen_t</span> len = <span class="keyword">sizeof</span>(struct sockaddr);</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="comment">//	client_socket = accept(server_socket,(struct sockaddr*)&amp;cli_addr,(unsigned int *)sizeof(struct sockaddr_in));</span></span><br><span class="line">    	client_socket = accept(server_socket,(struct sockaddr*)&amp;cli_addr,&amp;len);</span><br><span class="line">    	<span class="keyword">if</span> (client_socket&lt;<span class="number">0</span>)&#123;</span><br><span class="line">    		<span class="built_in">printf</span>(<span class="string">"handle error"</span>);</span><br><span class="line">    		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"server start working.."</span>);</span><br><span class="line">        recv(client_socket, msg, (<span class="keyword">size_t</span>)BUFFER_SIZE, <span class="number">0</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"received a connection from %s\n"</span>, inet_ntoa(cli_addr.sin_addr));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%s\n"</span>,msg);</span><br><span class="line">        <span class="built_in">strcpy</span>(msg,<span class="string">"hello,client,this is server"</span>);</span><br><span class="line">        send(client_socket, msg, <span class="keyword">sizeof</span>(msg),<span class="number">0</span>); <span class="comment">//sent msg</span></span><br><span class="line">        <span class="built_in">close</span>(client_socket);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">close</span>(server_socket);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="客户端-1"><a href="#客户端-1" class="headerlink" title="客户端"></a>客户端</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SERVER_ADDRESS 0X7F000001</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFER_SIZE 1024</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PORT 1234</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> server_socket;</span><br><span class="line">    <span class="keyword">int</span> client_socket;</span><br><span class="line">    <span class="keyword">char</span> msg[BUFFER_SIZE]; <span class="comment">/*buffer*/</span></span><br><span class="line">    <span class="comment">//struct sockaddr_in ser_addr; /* server address */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">cli_addr</span>;</span> <span class="comment">/* client address,unused */</span></span><br><span class="line">    client_socket = socket(AF_INET,SOCK_STREAM,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (client_socket&lt;<span class="number">0</span>)&#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">"open socket error"</span>);</span><br><span class="line">    	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    cli_addr.sin_family=AF_INET;</span><br><span class="line">    cli_addr.sin_addr.s_addr=inet_addr(<span class="string">"127.0.0.1"</span>);</span><br><span class="line">    cli_addr.sin_port= htons(PORT);</span><br><span class="line">    <span class="keyword">int</span> err_code= <span class="built_in">connect</span>(client_socket,(struct sockaddr *)&amp;cli_addr,<span class="keyword">sizeof</span>(sockaddr_in));</span><br><span class="line">    <span class="keyword">if</span>(err_code &lt;<span class="number">0</span>)&#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">"connect error:%d"</span>,err_code);</span><br><span class="line">    	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> len=<span class="number">0</span>;</span><br><span class="line">    <span class="comment">//begin working</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"success connect to %u\n"</span>,SERVER_ADDRESS);</span><br><span class="line">    	<span class="built_in">strcpy</span>(msg,<span class="string">"hello server,this is client"</span>);</span><br><span class="line">    	send(client_socket,msg,<span class="built_in">strlen</span>(msg),<span class="number">0</span>);</span><br><span class="line">    	recv(client_socket, msg, (<span class="keyword">size_t</span>)BUFFER_SIZE, <span class="number">0</span>);</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">"%s"</span>,msg);</span><br><span class="line">    <span class="built_in">close</span>(client_socket);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="一些问题"><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h2><ol>
+<li>udp 协议的socket也能调用 connect，不过不会进行三次握手，内核会记录下服务器的地址信息。一般用于打开新的 udp 连接和断开连接。</li>
+<li>服务器listen之后，客户端便可以 connect 进行三次握手，可以通过 tcpdump抓到相关包。建立的连接会放到一个队列中等待 accept 使用。</li>
+<li>accept 函数会从已经建立连接的队列中取出第一个连接，并创建一个新的socket，新的socket的类型和地址参数要和原来的那个指定的socket的地址一一样，并且还要为这个新的socket分配文件描述符。新建的这个socket自身是无法再接收连接了，但是最开始的socket仍然是处于开放状态，而且可以接收更多连接。</li>
+<li>send 函数只是将要发送的内容写入了内核缓存区，对端不一定接收到了。</li>
+<li>如果一直不调用recv函数，内核接收缓存区会满，这时 tcp 协议通过滑动窗口通知对端不要在发送，而 udp 协议则会直接丢弃。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/p/2549394188.html" rel="next" title="从零开始的内核启动启动">
+                <i class="fa fa-chevron-left"></i> 从零开始的内核启动启动
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/p/3178013999.html" rel="prev" title="memset 的优化">
+                memset 的优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                
+                src = "/images/github_avatar.png"
+                alt="Quanwei" />
+            
+              <p class="site-author-name" itemprop="name">Quanwei</p>
+              <p class="site-description motion-element" itemprop="description">记录，分享，提高</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/mequanwei" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:quanwei12@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#socket"><span class="nav-number">1.</span> <span class="nav-text">socket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#连接过程"><span class="nav-number">2.</span> <span class="nav-text">连接过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体过程和API"><span class="nav-number">3.</span> <span class="nav-text">具体过程和API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例代码"><span class="nav-number">4.</span> <span class="nav-text">实例代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端"><span class="nav-number">4.1.</span> <span class="nav-text">客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端-1"><span class="nav-number">4.2.</span> <span class="nav-text">客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些问题"><span class="nav-number">5.</span> <span class="nav-text">一些问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2019 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Quanwei</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
