@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="wuee, blog,share" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在上次的基础上，将进程模型改为线程模型，并添加了线程池。项目地址 github">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程同步和线程池">
+<meta property="og:url" content="https://mequanwei.github.com/p/2825544451.html">
+<meta property="og:site_name" content="Wuee&#39;s Blog">
+<meta property="og:description" content="在上次的基础上，将进程模型改为线程模型，并添加了线程池。项目地址 github">
+<meta property="article:published_time" content="2020-04-05T12:40:33.000Z">
+<meta property="article:modified_time" content="2020-06-29T13:28:17.172Z">
+<meta property="article:author" content="Quanwei">
+<meta property="article:tag" content="博客">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mequanwei.github.com/p/2825544451.html"/>
+
+
+
+
+
+  <title>线程同步和线程池 | Wuee's Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Wuee's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://mequanwei.github.com/p/2825544451.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Quanwei">
+      <meta itemprop="description" content="">
+      
+      <meta itemprop="image" content="/images/github_avatar.png"> 
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Wuee's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">线程同步和线程池</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-05T08:40:33-04:00">
+                2020-04-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上次的基础上，将进程模型改为线程模型，并添加了线程池。项目地址 <a href="https://github.com/mequanwei/wServer" target="_blank" rel="noopener">github</a></p>
+<a id="more"></a>
+
+<p>上次的服务器模型采用子进程监听新的socket，考虑到在进程线程数量少的时候，二者并没有太大差异，所以本次将进程模型替换成线程模型，并且实现了线程池机制。</p>
+<h2 id="线程间同步"><a href="#线程间同步" class="headerlink" title="线程间同步"></a>线程间同步</h2><p>在多线程环境中运行的代码段，需要考虑线程间同步。对于一些临界区资源，要保证临界区的同一时刻仅被一个线程操作，就需要用到线程间的互斥-锁机制，线程间同步的机制有信号量，互斥量，条件变量。C++11之后提供了thread线程类，可以很方便的使用这些机制。不过由于我的系统 gcc 版本过低，项目中并没有用它。而是使用了 linux 原生线程支持。等以后有空在慢慢优化。</p>
+<h3 id="互斥锁mutex"><a href="#互斥锁mutex" class="headerlink" title="互斥锁mutex"></a>互斥锁mutex</h3><p>mutex 是最基本的互斥量，提供了独占所有权的特性，对其操作包括：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pthread_mutex_init(): 初始化互斥锁</span><br><span class="line"></span><br><span class="line">pthread_mutex_destory(): 销毁互斥锁</span><br><span class="line"></span><br><span class="line">pthread_mutex_lock():加锁</span><br><span class="line"></span><br><span class="line">pthread_mutex_unlock():互斥锁解锁</span><br></pre></td></tr></table></figure>
+
+<h3 id="条件变量"><a href="#条件变量" class="headerlink" title="条件变量"></a>条件变量</h3><p>条件变量提供了一种线程间的通知机制,当某个共享数据达到某个值时,唤醒等待这个共享数据的线程。资料上显示条件变量的效率比 mutex 高，有机会可以测试一下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pthread_cond_init(): 初始化条件变量</span><br><span class="line"></span><br><span class="line">pthread_cond_destory(): 销毁条件变量</span><br><span class="line"></span><br><span class="line">pthread_cond_broadcast(): 函数以广播的方式唤醒所有等待目标条件变量的线程</span><br><span class="line"></span><br><span class="line">pthread_cond_wait(): 函数用于等待目标条件变量.该函数调用时需要传入 mutex 参数。执行时,先把调用线程放入条件变量的请求队列,然后将互斥锁mutex解锁,当函数成功返回为<span class="number">0</span>时,互斥锁会再次被锁上。也就是说函数内部会有一次解锁和加锁操作.</span><br></pre></td></tr></table></figure>
+
+<h3 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h3><p>信号量是一种特殊的变量，它只能取自然数值并且只支持两种操作：等待(P)和信号(V)。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sem_init():初始化一个未命名的信号量</span><br><span class="line"></span><br><span class="line">sem_destory():用于销毁信号量</span><br><span class="line"></span><br><span class="line">sem_wait():将信号量减一,信号量为<span class="number">0</span>时,sem_wait 阻塞</span><br><span class="line"></span><br><span class="line">sem_post():将信号量加一,信号量大于<span class="number">0</span>时,唤醒调用sem_post的线程</span><br></pre></td></tr></table></figure>
+
+<p>在项目中，我们对这些基本操作进行了封装，主要是将锁初始化和销毁封装到构造函数和析构函数，这样当对象析构时，锁就会自动销毁。以互斥量为例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Mutex::Mutex()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span> (pthread_mutex_init(&amp;m_mutex, <span class="literal">NULL</span>) != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">throw</span> <span class="built_in">std</span>::exception();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Mutex::~Mutex()</span><br><span class="line">&#123;</span><br><span class="line">	pthread_mutex_destroy(&amp;m_mutex);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">bool</span> Mutex::Lock()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> pthread_mutex_lock(&amp;m_mutex) == <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">bool</span> Mutex::Unlock()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> pthread_mutex_unlock(&amp;m_mutex) == <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><p>随着服务器的运行，系统接收到 socket，服务端关闭 socket 要结束线程。线程过多或者频繁创建和销毁线程会带来调度开销，进而影响缓存局部性和整体性能。为了避免这种情况，我们用到了线程池。线程池维护着多个线程，等待着管理器分配可并发执行的任务。</p>
+<p>线程池的主要有两部分——工作线程和等待队列。其基本思想是，初始化一定数量的线程，这些线程不断去工作队列中取出任务并执行。当工作队列没有任务时，线程池主阻塞等待。当往工作队列中添加一个任务时，通过信号量的方式通知线程池开始工作。其主要代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">ThreadPool&lt;T&gt;::ThreadPool(ConnectionPool&amp; connPool, <span class="keyword">int</span> thread_number, <span class="keyword">int</span> max_requests):m_thread_number(thread_number), m_max_requests(max_requests), m_threads(<span class="literal">NULL</span>),m_connPool(&amp;connPool)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (thread_number &lt;= <span class="number">0</span> || max_requests &lt;= <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="built_in">std</span>::exception();</span><br><span class="line">    m_threads = <span class="keyword">new</span> <span class="keyword">pthread_t</span>[m_thread_number];</span><br><span class="line">    <span class="keyword">if</span> (!m_threads)</span><br><span class="line">        <span class="keyword">throw</span> <span class="built_in">std</span>::exception();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; thread_number; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (pthread_create(m_threads + i, <span class="literal">NULL</span>, worker, <span class="keyword">this</span>) != <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">delete</span>[] m_threads;</span><br><span class="line">            <span class="keyword">throw</span> <span class="built_in">std</span>::exception();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (pthread_detach(m_threads[i]))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">delete</span>[] m_threads;</span><br><span class="line">            <span class="keyword">throw</span> <span class="built_in">std</span>::exception();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">bool</span> ThreadPool&lt;T&gt;::append(T *request, <span class="keyword">int</span> state,<span class="keyword">int</span> fd)</span><br><span class="line">&#123;</span><br><span class="line">    m_queuelocker.Lock();</span><br><span class="line">    <span class="keyword">if</span> (m_workqueue.<span class="built_in">size</span>() &gt;= m_max_requests)</span><br><span class="line">    &#123;</span><br><span class="line">        m_queuelocker.Unlock();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    request-&gt;rw_state = state;</span><br><span class="line">    request-&gt;fd = fd;</span><br><span class="line">    m_workqueue.push_back(request);</span><br><span class="line">    m_queuelocker.Unlock();</span><br><span class="line">    m_queuestat.post();</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">void</span> *ThreadPool&lt;T&gt;::worker(<span class="keyword">void</span> *arg)</span><br><span class="line">&#123;</span><br><span class="line">	ThreadPool *pool = (ThreadPool *)arg;</span><br><span class="line">    pool-&gt;<span class="built_in">run</span>();</span><br><span class="line">    <span class="keyword">return</span> pool;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">void</span> ThreadPool&lt;T&gt;::<span class="built_in">run</span>()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        m_queuestat.wait();</span><br><span class="line">        m_queuelocker.Lock();</span><br><span class="line">        <span class="keyword">if</span> (m_workqueue.empty())</span><br><span class="line">        &#123;</span><br><span class="line">            m_queuelocker.Unlock();</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        T *request = m_workqueue.front();</span><br><span class="line">        m_workqueue.pop_front();</span><br><span class="line">        m_queuelocker.Unlock();</span><br><span class="line">        <span class="keyword">if</span> (!request)</span><br><span class="line">        &#123;</span><br><span class="line">        	<span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//		m_connPool = &amp;request-&gt;mysql;</span></span><br><span class="line">        <span class="keyword">if</span> (request-&gt;rw_state == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">        	request-&gt;readHandle(); <span class="comment">//read</span></span><br><span class="line">        &#125;<span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在构造函数中，我们通过循环初始化若干工作线程。由于我是4核机器，这里的工作线程数量取 4。构造完成的线程池处于一个while循环中，通过信号量 m_queuestat 等待工作。当通过 append 向工作队列添加一个任务时，将 m_queuestat 信号量加一。这样线程池就开始从工作队列中取出一个元素，开始执行任务。<br>需要注意的是：操作等待队列时需要加互斥锁。这个简单的线程池并没有没有实现线程的优先级调度，这个后面有空也可以加上。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/p/3924114082.html" rel="next" title="Linux TCP服务器——通过socket建立连接">
+                <i class="fa fa-chevron-left"></i> Linux TCP服务器——通过socket建立连接
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/p/3877409654.html" rel="prev" title="数据库连接池和单例模式">
+                数据库连接池和单例模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                
+                src = "/images/github_avatar.png"
+                alt="Quanwei" />
+            
+              <p class="site-author-name" itemprop="name">Quanwei</p>
+              <p class="site-description motion-element" itemprop="description">记录，分享，提高</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+                <a href="/archives">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/mequanwei" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:quanwei12@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#线程间同步"><span class="nav-number">1.</span> <span class="nav-text">线程间同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#互斥锁mutex"><span class="nav-number">1.1.</span> <span class="nav-text">互斥锁mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#条件变量"><span class="nav-number">1.2.</span> <span class="nav-text">条件变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#信号量"><span class="nav-number">1.3.</span> <span class="nav-text">信号量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-number">2.</span> <span class="nav-text">线程池</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2019 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Quanwei</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
