@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="服务器项目从开始写到现在已经过去两个月，由于工作忙，实现的内容并不多。再次总结一下，也规划下接下来的目标。">
+<meta name="description" content="服务器项目从开始写到现在已经过去两个月，由于工作忙，实现的内容并不多。再次总结一下，也规划下接下来的目标。项目地址 github">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TCP服务器项目小结">
 <meta property="og:url" content="https://mequanwei.github.com/p/2709485540.html">
 <meta property="og:site_name" content="Wuee&#39;s Blog">
-<meta property="og:description" content="服务器项目从开始写到现在已经过去两个月，由于工作忙，实现的内容并不多。再次总结一下，也规划下接下来的目标。">
+<meta property="og:description" content="服务器项目从开始写到现在已经过去两个月，由于工作忙，实现的内容并不多。再次总结一下，也规划下接下来的目标。项目地址 github">
 <meta property="article:published_time" content="2020-06-13T15:52:10.000Z">
-<meta property="article:modified_time" content="2020-06-29T16:17:32.117Z">
+<meta property="article:modified_time" content="2020-06-29T16:18:30.464Z">
 <meta property="article:author" content="Quanwei">
 <meta property="article:tag" content="博客">
 <meta name="twitter:card" content="summary">
@@ -296,7 +296,7 @@
       
 
       
-        <p>服务器项目从开始写到现在已经过去两个月，由于工作忙，实现的内容并不多。再次总结一下，也规划下接下来的目标。</p>
+        <p>服务器项目从开始写到现在已经过去两个月，由于工作忙，实现的内容并不多。再次总结一下，也规划下接下来的目标。项目地址 <a href="https://github.com/mequanwei/wServer" target="_blank" rel="noopener">github</a></p>
 <a id="more"></a>
 <h2 id="整体描述"><a href="#整体描述" class="headerlink" title="整体描述"></a>整体描述</h2><p>tcp 服务器的功能是收到客户端发送请求之后，将客户端携带的信息和对应ID写入到数据库并返回ok。如果数据库中已有用户id，就更新对应的信息。用到的技术有 epoll 复用，多线程编程，线程池和数据库连接池等。<br>通过 Jmeter 进行压力测试，在 7s 内处理 8000 并发。超过之后会有部分丢包。</p>
 <h2 id="耗时较多的问题"><a href="#耗时较多的问题" class="headerlink" title="耗时较多的问题"></a>耗时较多的问题</h2><ol>
