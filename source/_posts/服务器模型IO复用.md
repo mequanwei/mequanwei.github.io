@@ -4,7 +4,7 @@ abbrlink: 250739322
 date: 2020-05-15 10:24:30
 tags:
 ---
-在之前的项目中，服务器可以接收客户端连接，并通过子线程将其写入到数据库中。这次我们将利用IO复用技术提高系统性能。项目地址 [github](https://github.com/mequanwei/wServer)
+在之前的项目中，服务器可以接收客户端连接，并通过子线程将其写入到数据库中。这次我们将利用IO复用技术提高系统性能。项目地址 [github](https://github.com/mequanwei/wServer)。
 <!--more-->
 
 ## 阻塞和异步
@@ -45,71 +45,63 @@ int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout
 ```c++
 int Server::start()
 {
-	int ret;
-	int server_socket;
-	int status;
+    int ret;
+    int server_socket;
+    int status;
     int number;
-	char msg[BUFFER_SIZE]; /*buffer*/
-
-	struct sockaddr_in ser_addr; /* server address */
-	struct sockaddr_in cli_addr; /* client address */
-
-	server_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_socket < 0)
-	{
-		printf("open socket error\n");
-		return 0;
-	}
-
-	ser_addr.sin_family = AF_INET;
-	ser_addr.sin_addr.s_addr = htonl(ACCEPTED_ADDRESS);
-	ser_addr.sin_port = htons(PORT);
-
-	ret = bind(server_socket, (struct sockaddr*) &ser_addr,
-			sizeof(struct sockaddr_in));
-	if (ret < 0)
-	{
-		printf("bind error\n");
-		return 0;
-	}
-
-	ret = listen(server_socket, BACKLOG);
-	if (ret < 0)
-	{
-		printf("listening error\n");
-		return 0;
-	}
-
-	epollfd = epoll_create(EPOLL_SIZE);	
-	addfd(epollfd, server_socket);
-
-	while (1)
-	{
-		number = epoll_wait(epollfd, events, EPOLL_SIZE, -1);
-		for (int i = 0; i < number; i++)
-		{
-			if (events[i].data.fd == server_socket)
-			{
-				int client_socket = accept(server_socket, NULL, NULL);  //第二三个参数用记录连接的客户端状态
-				if (client_socket <0)
-				{
-					cout <<"error"<<endl;
-					continue;
-				}
-				addfd(epollfd, client_socket);
-			}
-			else if (events[i].events & EPOLLIN)
-			{
-				handleRead(events[i].data.fd);
-			}
-			else if (events[i].events & EPOLLOUT)
-			{
-				handleWrite(events[i].data.fd);
-			}
-		}
-	}
-
-	return 0;
+    char msg[BUFFER_SIZE]; /*buffer*/    
+    struct sockaddr_in ser_addr; /* server address */
+    struct sockaddr_in cli_addr; /* client address */    
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket < 0)
+    {
+    	printf("open socket error\n");
+    	return 0;
+    }    
+    ser_addr.sin_family = AF_INET;
+    ser_addr.sin_addr.s_addr = htonl(ACCEPTED_ADDRESS);
+    ser_addr.sin_port = htons(PORT);    
+    ret = bind(server_socket, (struct sockaddr*) &ser_addr,
+    		sizeof(struct sockaddr_in));
+    if (ret < 0)
+    {
+    	printf("bind error\n");
+    	return 0;
+    }    
+    ret = listen(server_socket, BACKLOG);
+    if (ret < 0)
+    {
+    	printf("listening error\n");
+    	return 0;
+    }    
+    epollfd = epoll_create(EPOLL_SIZE);	
+    addfd(epollfd, server_socket);    
+    while (1)
+    {
+        number = epoll_wait(epollfd, events, EPOLL_SIZE, -1);
+        for (int i = 0; i < number; i++)
+        {
+            if (events[i].data.fd == server_socket)
+            {
+                int client_socket = accept(server_socket, NULL, NULL);  //第二三个参数用记录连接的客户端状态
+    	        if (client_socket <0)
+    	        {
+    	        cout <<"error"<<endl;
+    	            continue;
+    	        }
+    	        addfd(epollfd, client_socket);
+    	    }
+    	    else if (events[i].events & EPOLLIN)
+    	    {
+    	        handleRead(events[i].data.fd);
+    	    }
+    	    else if (events[i].events & EPOLLOUT)
+    	    {
+    	        handleWrite(events[i].data.fd);
+    	    }
+    	}
+    }
+    return 0;
 }
 
 

@@ -54,25 +54,25 @@ sem_post():将信号量加一,信号量大于0时,唤醒调用sem_post的线程
 ```c++
 Mutex::Mutex()
 {
-	if (pthread_mutex_init(&m_mutex, NULL) != 0)
-	{
-		throw std::exception();
-	}
+    if (pthread_mutex_init(&m_mutex, NULL) != 0)
+    {
+        throw std::exception();
+    }
 }
 
 Mutex::~Mutex()
 {
-	pthread_mutex_destroy(&m_mutex);
+    pthread_mutex_destroy(&m_mutex);
 }
 
 bool Mutex::Lock()
 {
-	return pthread_mutex_lock(&m_mutex) == 0;
+    return pthread_mutex_lock(&m_mutex) == 0;
 }
 
 bool Mutex::Unlock()
 {
-	return pthread_mutex_unlock(&m_mutex) == 0;
+    return pthread_mutex_unlock(&m_mutex) == 0;
 }
 
 ```
@@ -152,18 +152,17 @@ void ThreadPool<T>::run()
         	continue;
         }
 
-//		m_connPool = &request->mysql;
         if (request->rw_state == 0)
         {
-        	request->readHandle(); //read
+        	request->readHandle(); 
         }else
         {
-
+            request->wirteHandle();
         }
-
     }
 }
 ```
 
 在构造函数中，我们通过循环初始化若干工作线程。由于我是4核机器，这里的工作线程数量取 4。构造完成的线程池处于一个while循环中，通过信号量 m_queuestat 等待工作。当通过 append 向工作队列添加一个任务时，将 m_queuestat 信号量加一。这样线程池就开始从工作队列中取出一个元素，开始执行任务。
+
 需要注意的是：操作等待队列时需要加互斥锁。这个简单的线程池并没有没有实现线程的优先级调度，这个后面有空也可以加上。
